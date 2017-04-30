@@ -1,0 +1,37 @@
+#-------------------------------------------------------------------------------
+# appveyor.yml
+# Author: Alan D. Snow, 2017
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#System specifications for Appveyor
+#-------------------------------------------------------------------------------
+environment:
+  matrix:
+    - PYTHON_VERSION: "2.7"
+      MINICONDA: "C:\\Miniconda-x64"
+    - PYTHON_VERSION: "3.5"
+      MINICONDA: "C:\\Miniconda3-x64"
+    - PYTHON_VERSION: "3.6"
+      MINICONDA: "C:\\Miniconda3-x64"
+
+install:
+  - 'SET PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%'
+  - conda config --set always_yes yes
+  - conda update -q conda python
+#-----------------------------------------------------------------------------
+# Create conda environment for pangaea
+#-----------------------------------------------------------------------------
+  - conda env create -f conda_env.yml python=%PYTHON_VERSION%
+  - activate pangaea
+  - conda config --add channels conda-forge
+#-------------------------------------------------------------------------------
+# Install pangaea
+#-------------------------------------------------------------------------------
+  - 'cd %APPVEYOR_BUILD_FOLDER%'
+  - pip install -e .[tests]
+  - 'cd %APPVEYOR_BUILD_FOLDER%\tests'
+
+build: false
+
+test_script:
+  - py.test --cov-report term-missing --cov=pangaea

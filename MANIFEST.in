@@ -1,0 +1,4 @@
+prune docs
+prune tests
+include LICENSE
+include README.md
