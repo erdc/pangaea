@@ -14,6 +14,11 @@ environment:
     - PYTHON_VERSION: "3.6"
       MINICONDA: "C:\\Miniconda3-x64"
 
+matrix:
+  allow_failures:
+  - PYTHON_VERSION: "3.5"
+  - PYTHON_VERSION: "3.6"
+
 install:
   - 'SET PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%'
   - conda config --set always_yes yes
