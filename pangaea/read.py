@@ -43,12 +43,13 @@ def open_mfdataset(path_to_lsm_files,
     time_dim: :obj:`str`
         Time dimension (ex. time).
     autoclose: :obj:`str`
-        If True, will use xarray's autoclose option with
+        If True, will use autoclose option with
         :func:`xarray.open_mfdataset`.
 
     Returns
     -------
     :func:`xarray.Dataset`
+
     """
     def define_coords(xds):
         """xarray loader to ensure coordinates are loaded correctly"""

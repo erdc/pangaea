@@ -28,7 +28,7 @@ class LSMGridReader(object):
     This is an extension for xarray specifically
     designed for land surface models.
 
-    Example:
+    Example::
 
         import xarray as xr
 
