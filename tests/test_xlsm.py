@@ -18,7 +18,7 @@ import pangaea as pa
 
 def test_read_wrf(tgrid):
     """Test reading in WRF grid"""
-    path_to_lsm_files = path.join(tgrid.input, 'wrf_data', '*.nc')
+    path_to_lsm_files = path.join(tgrid, 'wrf_data', '*.nc')
     lsm_lat_var = 'XLAT'
     lsm_lon_var = 'XLONG'
     lsm_time_dim = 'Time'
