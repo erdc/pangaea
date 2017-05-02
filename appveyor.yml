@@ -34,5 +34,5 @@ build: false
 
 test_script:
   - py.test --cov-report term-missing --cov=pangaea
-  - flake8  flake8 pangaea setup.py tests
+  - flake8  --ignore=F401 flake8 pangaea setup.py tests
   - pylint pangaea
