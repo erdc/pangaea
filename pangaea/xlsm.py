@@ -278,7 +278,16 @@ class LSMGridReader(object):
                           )
 
     def resample(self, variable, match_grid):
-        """Resample data to grid."""
+        """Resample data to grid.
+
+            Parameters
+            ----------
+            variable: :obj:`str`
+                Name of variable in dataset.
+            match_grid: :func:`gdal.Dataset` or :func:`sloot.grid.GDALGrid`
+                Grid you want the data resampled to match resolution.
+                You can also pass the path to the grid.
+        """
         new_data = []
         for band in range(self._obj.dims[self.time_dim]):
             data = self._obj[variable][band].values
@@ -320,7 +329,30 @@ class LSMGridReader(object):
                y_index_end=-1,
                calc_4d_method=None,
                calc_4d_dim=None):
-        """Get Subset of variable"""
+        """Get variable from model with subset options.
+
+            Parameters
+            ----------
+            variable: :obj:`str`
+                Name of variable in dataset.
+            x_index_start: int, optional
+                x-index of grid to start grabbing data from.
+            x_index_end: int, optional
+                x-index of grid to finish grabbing data from.
+            y_index_start: int, optional
+                y-index of grid to start grabbing data from.
+            y_index_end: int, optional
+                y-index of grid to finish grabbing data from.
+            calc_4d_method: :obj:`str`
+                Method to convert 4D variables to 3D variables
+                (Ex. 'mean', 'min', or 'max').
+            calc_4d_dim: :obj:`str`
+                Dimension to reduce grid from 4D to 3D (Ex. 'top_bottom').
+
+            Returns
+            -------
+            :func:`xarray.DataArray`
+        """
         if 'MAP_PROJ' in self._obj.attrs:
             # WRF Y DIM IS BACKWARDS
             original_y_index_start = y_index_start
@@ -356,7 +388,21 @@ class LSMGridReader(object):
         return data
 
     def to_projection(self, variable, projection=None, as_utm=False):
-        """Convert Grid to New Projection. Optional UTM Coordinates"""
+        """Convert Grid to New Projection.
+
+            Parameters
+            ----------
+            variable: :obj:`str`
+                Name of variable in dataset.
+            projection: :func:`osr.SpatialReference`, optional
+                Projection to convert data to.
+            as_utm: bool, optional
+                If True, will convert to UTM zone at center of grid.
+
+            Returns
+            -------
+            :func:`xarray.Dataset`
+        """
         dst_proj = None
         if as_utm:
             # get utm projection
@@ -386,7 +432,17 @@ class LSMGridReader(object):
                                     ggrid)
 
     def to_tif(self, variable, time_index, out_path):
-        """Dump to TIFF"""
+        """Dump a variable at a time index to a geotiff.
+
+            Parameters
+            ----------
+            variable: :obj:`str`
+                Name of variable in dataset.
+            time_index: int
+                0-based time index,
+            out_path: :obj:`str`
+                Path to output geotiff file,
+        """
         arr_grid = ArrayGrid(in_array=self._obj[variable][time_index].values,
                              wkt_projection=self.projection.ExportToWkt(),
                              geotransform=self.geotransform)
