@@ -48,8 +48,9 @@ class LSMGridReader(object):
                 self._obj[self.time_var].values = pd.to_datetime(time_values)
             except ValueError:
                 # WRF DATETIME FORMAT
-                self._obj[self.time_var].values = pd.to_datetime(time_values,
-                                                                 format="%Y-%m-%d_%H:%M:%S")
+                self._obj[self.time_var].values = \
+                    pd.to_datetime(time_values,
+                                   format="%Y-%m-%d_%H:%M:%S")
 
     @property
     def datetime(self):
@@ -86,7 +87,7 @@ class LSMGridReader(object):
 
     def _load_grib_projection(self):
         """Get the osgeo.osr projection for Grib Grid.
-            - grid_type:  Lambert Conformal (secant, tangent, conical or bipolar)
+            - grid_type:  Lambert Conformal
             - Latin1:     True latitude 1.
             - Latin2:     True latitude 2.
             - Lov:        Central meridian.
@@ -97,6 +98,7 @@ class LSMGridReader(object):
         """
         lat_var_attrs = self._obj[self.y_var].attrs
         if 'Lambert Conformal' in lat_var_attrs['grid_type']:
+            mean_lat = self._obj[self.y_var].mean().values
             proj4_str = ("+proj=lcc "
                          "+lat_1={true_lat_1} "
                          "+lat_2={true_lat_2} "
@@ -105,11 +107,11 @@ class LSMGridReader(object):
                          "+x_0=0 +y_0=0 "
                          "+ellps=WGS84 +datum=WGS84 "
                          "+units=m +no_defs") \
-                         .format(true_lat_1=lat_var_attrs['Latin1'][0],
-                                 true_lat_2=lat_var_attrs['Latin2'][0],
-                                 latitude_of_origin=self._obj[self.y_var].mean().values,
-                                 central_meridian=lat_var_attrs['Lov'][0],
-                         )
+                .format(true_lat_1=lat_var_attrs['Latin1'][0],
+                        true_lat_2=lat_var_attrs['Latin2'][0],
+                        latitude_of_origin=mean_lat,
+                        central_meridian=lat_var_attrs['Lov'][0],
+                        )
         else:
             raise ValueError("Unsupported projection: {grid_type}"
                              .format(lat_var_attrs['grid_type']))
@@ -161,7 +163,8 @@ class LSMGridReader(object):
         """:obj:`tuple`: The geotransform for grid."""
         if self._geotransform is None:
             if self._obj.attrs.get('geotransform') is not None:
-                self._geotransform = [float(g) for g in self._obj.attrs.get('geotransform')]
+                self._geotransform = [float(g) for g in
+                                      self._obj.attrs.get('geotransform')]
 
             elif str(self.epsg) != '4326':
                 proj_y, proj_x = self.coords
@@ -246,11 +249,13 @@ class LSMGridReader(object):
                            },
                           coords={'lat': (['y', 'x'],
                                           lats,
-                                          self._obj[variable].coords[self.y_var].attrs
+                                          self._obj[variable]
+                                          .coords[self.y_var].attrs
                                           ),
                                   'lon': (['y', 'x'],
                                           lons,
-                                          self._obj[variable].coords[self.x_var].attrs
+                                          self._obj[variable]
+                                          .coords[self.x_var].attrs
                                           ),
                                   'time': (['time'],
                                            self._obj[self.time_var].values,
@@ -282,8 +287,8 @@ class LSMGridReader(object):
 
     def _getvar(self, variable, xslice, yslice):
         """Get the variable either directly or calculated"""
-        #FAILED ATTEMPT TO USE wrf.getvar
-        #if 'MAP_PROJ' in self._obj.attrs:
+        # FAILED ATTEMPT TO USE wrf.getvar
+        # if 'MAP_PROJ' in self._obj.attrs:
         #    try:
         #        nc_file = self._obj._file_obj.ds
         #    except AttributeError:
@@ -326,7 +331,7 @@ class LSMGridReader(object):
             if calc_4d_method is None or calc_4d_dim is None:
                 raise ValueError("The variable {var} has 4 dimension. "
                                  "Need 'calc_4d_method' and 'calc_4d_dim' "
-                                 "to proceed ...".format(var=data_var))
+                                 "to proceed ...".format(var=variable))
             data = getattr(data, calc_4d_method)(dim=calc_4d_dim)
 
         if 'MAP_PROJ' in self._obj.attrs:
@@ -348,7 +353,8 @@ class LSMGridReader(object):
         if as_utm:
             # get utm projection
             center_lon, center_lat = self.center
-            dst_proj = utm_proj_from_latlon(center_lat, center_lon, as_osr=True)
+            dst_proj = utm_proj_from_latlon(center_lat, center_lon,
+                                            as_osr=True)
         elif projection is not None:
             dst_proj = projection
 

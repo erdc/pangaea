@@ -12,6 +12,7 @@ import pytest
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
+
 @pytest.fixture(scope="module")
 def tgrid(request):
     return os.path.join(SCRIPT_DIR, 'input')
