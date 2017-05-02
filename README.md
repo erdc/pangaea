@@ -7,4 +7,4 @@ An xarray extension for land surface models.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/aa0tcguo4iqw7aa6/branch/master?svg=true)](https://ci.appveyor.com/project/snowman2/pangaea/branch/master)
 
-[s/pangaea/badge/?version=latest)](http://pangaea.readthedocs.io/en/latest/?badge=latest)![Documentation Status](https://readthedocs.org/project
+[![Documentation Status](https://readthedocs.org/projects/sloot/badge/?version=latest)](http://sloot.readthedocs.io/en/latest/?badge=latest)
