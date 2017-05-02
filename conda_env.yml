@@ -11,6 +11,7 @@ channels:
 dependencies:
 - python=2
 - gdal
+- netcdf4
 - pyproj
 # pynio does not work on Windows
 #- pynio
