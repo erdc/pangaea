@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-#  xarray_lsm.py
+#  xlsm.py
 #  pangaea
 #
 #  Author : Alan D Snow, 2017.
@@ -53,12 +53,12 @@ class LSMGridReader(object):
 
     @property
     def datetime(self):
-        """Get datetime object for time index"""
+        """Get datetime object for time variable"""
         self.to_datetime()
         return pd.to_datetime(self._obj[self.time_var].values)
 
     def _load_wrf_projection(self):
-        """Get the osgeo.osr projection for WRF Grid.
+        """Load the osgeo.osr projection for WRF Grid.
 
         - 'MAP_PROJ': The map projection type as an integer.
         - 'TRUELAT1': True latitude 1.
@@ -120,7 +120,9 @@ class LSMGridReader(object):
 
     @property
     def projection(self):
-        """Get the osgeo.osr projection for the dataset."""
+        """:func:`osgeo.osr.SpatialReference`
+            The projection for the dataset.
+        """
         if self._projection is None:
             # read projection information from global attributes
             map_proj4 = self._obj.attrs.get('proj4')
@@ -139,22 +141,24 @@ class LSMGridReader(object):
 
     @property
     def epsg(self):
-        """EPSG code"""
+        """str: EPSG code"""
         if self._epsg is None:
             self._epsg = self.projection.GetAuthorityCode(None)
         return self._epsg
 
     @property
     def dx(self):
+        """float: Pixel size in x direction."""
         return self.geotransform[1]
 
     @property
     def dy(self):
+        """float: Pixel size in y direction."""
         return -self.geotransform[-1]
 
     @property
     def geotransform(self):
-        """Get the osgeo geotransform for grid"""
+        """:obj:`tuple`: The geotransform for grid."""
         if self._geotransform is None:
             if self._obj.attrs.get('geotransform') is not None:
                 self._geotransform = [float(g) for g in self._obj.attrs.get('geotransform')]
@@ -170,23 +174,19 @@ class LSMGridReader(object):
 
     @property
     def affine(self):
-        """Gets the affine for the transformation"""
+        """:func:`Affine`: The affine for the transformation."""
         if self._affine is None:
             self._affine = Affine.from_gdal(*self.geotransform)
         return self._affine
 
-    def pixel2coord(self, col, row):
-        """Returns global coordinates to pixel center using base-0 raster index
-           http://gis.stackexchange.com/questions/53617/how-to-find-lat-lon-values-for-every-pixel-in-a-geotiff-file
-        """
-        return self.affine * (col+0.5, row+0.5)
-
     @property
     def x_size(self):
+        """int: Number of columns in the dataset."""
         return self._obj.dims[self.x_dim]
 
     @property
     def y_size(self):
+        """int: Number of rows in the dataset."""
         return self._obj.dims[self.y_dim]
 
     @property

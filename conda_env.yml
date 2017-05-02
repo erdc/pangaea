@@ -10,7 +10,11 @@ channels:
 - defaults
 dependencies:
 - python=2
+- gdal
+- pyproj
 # pynio does not work on Windows
 #- pynio
 #- sloot
 - wrf-python
+- pip:
+  - sloot
