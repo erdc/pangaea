@@ -259,7 +259,7 @@ class LSMGridReader(object):
         return xr.Dataset({variable: (['time', 'y', 'x'],
                                       new_data,
                                       self._obj[variable].attrs),
-                          },
+                           },
                           coords={'lat': (['y', 'x'],
                                           lats,
                                           self._obj[variable]
@@ -271,11 +271,11 @@ class LSMGridReader(object):
                                   'time': (['time'],
                                            self._obj[self.time_var].values,
                                            self._obj[self.time_var].attrs),
-                                 },
+                                  },
                           attrs={'proj4': grid.proj4,
                                  'geotransform': grid.geotransform,
-                                }
-                         )
+                                 }
+                          )
 
     def resample(self, variable, match_grid):
         """Resample data to grid."""

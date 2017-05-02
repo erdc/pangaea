@@ -22,12 +22,14 @@ def open_mfdataset(path_to_lsm_files,
                    time_dim,
                    autoclose=True):
     """
-    Wrapper to open land surface model netcdf files using :func:`xarray.open_mfdataset`.
+    Wrapper to open land surface model netcdf files
+    using :func:`xarray.open_mfdataset`.
 
     Parameters
     ----------
     path_to_lsm_files: :obj:`str`
-        Path to land surface model files with wildcard. (Ex. '/path/to/files/*.nc')
+        Path to land surface model files with wildcard.
+        (Ex. '/path/to/files/*.nc')
     lat_var: :obj:`str`
         Latitude variable (Ex. lat).
     lon_var: :obj:`str`
@@ -41,7 +43,8 @@ def open_mfdataset(path_to_lsm_files,
     time_dim: :obj:`str`
         Time dimension (ex. time).
     autoclose: :obj:`str`
-        If True, will use xarray's autoclose option with :func:`xarray.open_mfdataset`.
+        If True, will use xarray's autoclose option with
+        :func:`xarray.open_mfdataset`.
 
     Returns
     -------
