@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #  setup.py
-#  sloot
+#  pangaea
 #
 #  Created by Alan D Snow, 2017.
 #  BSD 3-Clause
@@ -9,24 +9,17 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'affine',
-    'appdirs',
-    'gdal',
-    'mapkit',
-    'pyproj',
-    'timezonefinder',
-    'utm',
+    'sloot',
     'wrf-python',
 ]
 
-setup(name='sloot',
+setup(name='pangaea',
       version='0.0.1',
-      description='An xarray extension for land surface models'
-                  ' and a collection of GDAL based functions.',
+      description='An xarray extension for land surface models.',
       #long_description='',
       author='Alan D. Snow',
       author_email='alansnow21@gmail.com',
-      url='https://github.com/snowman2/sloot',
+      url='https://github.com/snowman2/pangaea',
       license='BSD 3-Clause',
       keywords='land surface model, xarray, gdal',
       packages=find_packages(),
@@ -39,12 +32,16 @@ setup(name='sloot',
                 'Programming Language :: Python :: 2.7',
                 'Programming Language :: Python :: 3',
                 'Programming Language :: Python :: 3.5',
+                'Programming Language :: Python :: 3.6',
                 ],
       install_requires=requires,
       extras_require={
         'tests': [
+            'coveralls',
+            'flake8',
             'pytest',
             'pytest-cov',
+            'pylint',
         ],
         'docs': [
             'mock',

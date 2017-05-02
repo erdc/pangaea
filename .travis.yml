@@ -50,9 +50,10 @@ before_install:
 install:
 - cd $TRAVIS_BUILD_DIR
 - pip install -e .[tests]
-- cd $TRAVIS_BUILD_DIR/tests
 script:
 - py.test --cov-report term-missing --cov=pangaea
+- flake8  flake8 pangaea setup.py tests
+- pylint pangaea
 #-------------------------------------------------------------------------------
 # Coveralls stats for code coverage
 #-------------------------------------------------------------------------------

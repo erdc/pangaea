@@ -29,9 +29,10 @@ install:
 #-------------------------------------------------------------------------------
   - 'cd %APPVEYOR_BUILD_FOLDER%'
   - pip install -e .[tests]
-  - 'cd %APPVEYOR_BUILD_FOLDER%\tests'
 
 build: false
 
 test_script:
   - py.test --cov-report term-missing --cov=pangaea
+  - flake8  flake8 pangaea setup.py tests
+  - pylint pangaea
