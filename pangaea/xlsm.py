@@ -5,7 +5,10 @@
 #
 #  Author : Alan D Snow, 2017.
 #  License: BSD 3-Clause
-
+"""pangea.xlsm
+    This module is an extension for xarray for land surface models.
+    (see: http://xarray.pydata.org/en/stable/internals.html#extending-xarray)
+"""
 from affine import Affine
 import numpy as np
 from osgeo import osr, gdalconst
@@ -21,6 +24,17 @@ from sloot.grid import (geotransform_from_yx, gdal_reproject,
 
 @xr.register_dataset_accessor('lsm')
 class LSMGridReader(object):
+    """
+    This is an extension for xarray specifically
+    designed for land surface models.
+
+    Example:
+
+        import xarray as xr
+
+        with xr.open_dataset('/path/to/file.nc') as xds:
+            print(xds.lsm.projection)
+    """
     def __init__(self, xarray_obj):
         self._obj = xarray_obj
         self._projection = None
@@ -110,11 +124,10 @@ class LSMGridReader(object):
                 .format(true_lat_1=lat_var_attrs['Latin1'][0],
                         true_lat_2=lat_var_attrs['Latin2'][0],
                         latitude_of_origin=mean_lat,
-                        central_meridian=lat_var_attrs['Lov'][0],
-                        )
+                        central_meridian=lat_var_attrs['Lov'][0])
         else:
             raise ValueError("Unsupported projection: {grid_type}"
-                             .format(lat_var_attrs['grid_type']))
+                             .format(grid_type=lat_var_attrs['grid_type']))
 
         # export to Proj4 and add as osr projection
         self._projection = osr.SpatialReference()
@@ -226,8 +239,7 @@ class LSMGridReader(object):
         x_coords, y_coords = transform(Proj(init='epsg:4326'),
                                        Proj(self.projection.ExportToProj4()),
                                        lon,
-                                       lat,
-                                       )
+                                       lat)
         return y_coords, x_coords
 
     @property
@@ -243,29 +255,27 @@ class LSMGridReader(object):
     def _export_dataset(self, variable, new_data, grid):
         """Export subset of dataset."""
         lats, lons = grid.lat_lon(two_dimensional=True)
+
         return xr.Dataset({variable: (['time', 'y', 'x'],
                                       new_data,
                                       self._obj[variable].attrs),
-                           },
+                          },
                           coords={'lat': (['y', 'x'],
                                           lats,
                                           self._obj[variable]
-                                          .coords[self.y_var].attrs
-                                          ),
+                                          .coords[self.y_var].attrs),
                                   'lon': (['y', 'x'],
                                           lons,
                                           self._obj[variable]
-                                          .coords[self.x_var].attrs
-                                          ),
+                                          .coords[self.x_var].attrs),
                                   'time': (['time'],
                                            self._obj[self.time_var].values,
-                                           self._obj[self.time_var].attrs,
-                                           ),
-                                  },
+                                           self._obj[self.time_var].attrs),
+                                 },
                           attrs={'proj4': grid.proj4,
                                  'geotransform': grid.geotransform,
-                                 }
-                          )
+                                }
+                         )
 
     def resample(self, variable, match_grid):
         """Resample data to grid."""
@@ -274,8 +284,7 @@ class LSMGridReader(object):
             data = self._obj[variable][band].values
             arr_grid = ArrayGrid(in_array=data,
                                  wkt_projection=self.projection.ExportToWkt(),
-                                 geotransform=self.geotransform,
-                                 )
+                                 geotransform=self.geotransform)
             resampled_data_grid = resample_grid(original_grid=arr_grid,
                                                 match_grid=match_grid,
                                                 as_gdal_grid=True)
@@ -295,13 +304,13 @@ class LSMGridReader(object):
         #        nc_file = self._obj._file_obj.file_objs
         #    var = wrf.getvar(nc_file, variable)
         var = self._obj[variable]
-        sl = [slice(None)] * var.ndim
-        sl[var.get_axis_num(self.x_dim)] = xslice
-        sl[var.get_axis_num(self.y_dim)] = yslice
+        slc = [slice(None)] * var.ndim
+        slc[var.get_axis_num(self.x_dim)] = xslice
+        slc[var.get_axis_num(self.y_dim)] = yslice
         if var.ndim == 4:
-            var = var[:, :, sl[-2], sl[-1]]
+            var = var[:, :, slc[-2], slc[-1]]
         else:
-            var = var[:, sl[-2], sl[-1]]
+            var = var[:, slc[-2], slc[-1]]
         return var
 
     def getvar(self, variable,
@@ -324,8 +333,7 @@ class LSMGridReader(object):
 
         data = self._getvar(variable,
                             slice(x_index_start, x_index_end),
-                            slice(y_index_start, y_index_end),
-                            )
+                            slice(y_index_start, y_index_end))
 
         if data.ndim == 4:
             if calc_4d_method is None or calc_4d_dim is None:
@@ -336,12 +344,12 @@ class LSMGridReader(object):
 
         if 'MAP_PROJ' in self._obj.attrs:
             # Y DIM IS BACKWARDS
-            sl = [slice(None)] * data.ndim
-            sl[data.get_axis_num(self.y_dim)] = slice(None, None, -1)
+            slc = [slice(None)] * data.ndim
+            slc[data.get_axis_num(self.y_dim)] = slice(None, None, -1)
             if data.ndim == 3:
-                data = data[:, sl[-2], sl[-1]]
+                data = data[:, slc[-2], slc[-1]]
             else:
-                data = data[sl[-2], sl[-1]]
+                data = data[slc[-2], slc[-1]]
 
         data[self.time_var] = self._obj[self.time_var]
 
@@ -365,8 +373,7 @@ class LSMGridReader(object):
         for band in range(self._obj.dims[self.time_dim]):
             arr_grid = ArrayGrid(in_array=self._obj[variable][band].values,
                                  wkt_projection=self.projection.ExportToWkt(),
-                                 geotransform=self.geotransform,
-                                 )
+                                 geotransform=self.geotransform)
             ggrid = gdal_reproject(arr_grid.dataset,
                                    src_srs=self.projection,
                                    dst_srs=dst_proj,
@@ -382,6 +389,5 @@ class LSMGridReader(object):
         """Dump to TIFF"""
         arr_grid = ArrayGrid(in_array=self._obj[variable][time_index].values,
                              wkt_projection=self.projection.ExportToWkt(),
-                             geotransform=self.geotransform,
-                             )
+                             geotransform=self.geotransform)
         arr_grid.to_tif(out_path)

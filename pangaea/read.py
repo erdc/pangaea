@@ -5,7 +5,11 @@
 #
 #  Author : Alan D Snow, 2017.
 #  License: BSD 3-Clause
+"""pangea.read
 
+    This module provides helper functions to read in
+    land surface model datasets.
+"""
 import xarray as xr
 
 
@@ -16,34 +20,58 @@ def open_mfdataset(path_to_lsm_files,
                    lat_dim,
                    lon_dim,
                    time_dim,
-                   autoclose=True,
-                   ):
+                   autoclose=True):
+    """
+    Wrapper to open land surface model netcdf files using :func:`xarray.open_mfdataset`.
 
-    def define_coords(ds):
+    Parameters
+    ----------
+    path_to_lsm_files: :obj:`str`
+        Path to land surface model files with wildcard. (Ex. '/path/to/files/*.nc')
+    lat_var: :obj:`str`
+        Latitude variable (Ex. lat).
+    lon_var: :obj:`str`
+        Longitude variable (Ex. lon).
+    time_var: :obj:`str`
+        Time variable (Ex. time).
+    lat_dim: :obj:`str`
+        Latitude dimension (Ex. lat).
+    lon_dim: :obj:`str`
+        Longitude dimension (Ex. lon).
+    time_dim: :obj:`str`
+        Time dimension (ex. time).
+    autoclose: :obj:`str`
+        If True, will use xarray's autoclose option with :func:`xarray.open_mfdataset`.
+
+    Returns
+    -------
+    :func:`xarray.Dataset`
+    """
+    def define_coords(xds):
         """xarray loader to ensure coordinates are loaded correctly"""
         # remove time dimension from lat, lon coordinates
-        if ds[lat_var].ndim == 3:
-            ds[lat_var] = ds[lat_var].squeeze(time_dim)
-        if ds[lon_var].ndim == 3:
-            ds[lon_var] = ds[lon_var].squeeze(time_dim)
+        if xds[lat_var].ndim == 3:
+            xds[lat_var] = xds[lat_var].squeeze(time_dim)
+        if xds[lon_var].ndim == 3:
+            xds[lon_var] = xds[lon_var].squeeze(time_dim)
         # make sure coords are defined as coords
-        if lat_var not in ds.coords \
-                or lon_var not in ds.coords \
-                or time_var not in ds.coords:
-            ds.set_coords([lat_var, lon_var, time_var],
-                          inplace=True)
-        return ds
+        if lat_var not in xds.coords \
+                or lon_var not in xds.coords \
+                or time_var not in xds.coords:
+            xds.set_coords([lat_var, lon_var, time_var],
+                           inplace=True)
+        return xds
 
-    xd = xr.open_mfdataset(path_to_lsm_files,
-                           autoclose=autoclose,
-                           preprocess=define_coords,
-                           concat_dim=time_dim)
-    xd.lsm.y_var = lat_var
-    xd.lsm.x_var = lon_var
-    xd.lsm.time_var = time_var
-    xd.lsm.y_dim = lat_dim
-    xd.lsm.x_dim = lon_dim
-    xd.lsm.time_dim = time_dim
-    xd.lsm.to_datetime()
+    xds = xr.open_mfdataset(path_to_lsm_files,
+                            autoclose=autoclose,
+                            preprocess=define_coords,
+                            concat_dim=time_dim)
+    xds.lsm.y_var = lat_var
+    xds.lsm.x_var = lon_var
+    xds.lsm.time_var = time_var
+    xds.lsm.y_dim = lat_dim
+    xds.lsm.x_dim = lon_dim
+    xds.lsm.time_dim = time_dim
+    xds.lsm.to_datetime()
 
-    return xd
+    return xds

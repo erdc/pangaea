@@ -9,7 +9,6 @@
 from os import path
 
 from numpy.testing import assert_almost_equal
-from osgeo import osr
 import pandas as pd
 from affine import Affine
 
