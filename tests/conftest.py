@@ -9,14 +9,8 @@
 import os
 
 import pytest
-from shutil import rmtree
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-
-
-class TestDirectories(object):
-    input =
-
 
 @pytest.fixture(scope="module")
 def tgrid(request):
