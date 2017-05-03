@@ -59,12 +59,20 @@ class LSMGridReader(object):
         time_values = self._obj[self.time_var].values
         if 'datetime' not in str(time_values.dtype):
             try:
-                self._obj[self.time_var].values = pd.to_datetime(time_values)
+                time_values = [time_val.decode('utf-8') for
+                               time_val in time_values]
+            except AttributeError:
+                pass
+
+            try:
+                datetime_values = pd.to_datetime(time_values)
             except ValueError:
                 # WRF DATETIME FORMAT
-                self._obj[self.time_var].values = \
+                datetime_values = \
                     pd.to_datetime(time_values,
                                    format="%Y-%m-%d_%H:%M:%S")
+
+            self._obj[self.time_var].values = datetime_values
 
     @property
     def datetime(self):
@@ -387,34 +395,20 @@ class LSMGridReader(object):
 
         return data
 
-    def to_projection(self, variable, projection=None, as_utm=False):
+    def to_projection(self, variable, projection):
         """Convert Grid to New Projection.
 
             Parameters
             ----------
             variable: :obj:`str`
                 Name of variable in dataset.
-            projection: :func:`osr.SpatialReference`, optional
+            projection: :func:`osr.SpatialReference`
                 Projection to convert data to.
-            as_utm: bool, optional
-                If True, will convert to UTM zone at center of grid.
 
             Returns
             -------
             :func:`xarray.Dataset`
         """
-        dst_proj = None
-        if as_utm:
-            # get utm projection
-            center_lon, center_lat = self.center
-            dst_proj = utm_proj_from_latlon(center_lat, center_lon,
-                                            as_osr=True)
-        elif projection is not None:
-            dst_proj = projection
-
-        if dst_proj is None:
-            raise ValueError("Need projection or as_utm.")
-
         new_data = []
         for band in range(self._obj.dims[self.time_dim]):
             arr_grid = ArrayGrid(in_array=self._obj[variable][band].values,
@@ -422,7 +416,7 @@ class LSMGridReader(object):
                                  geotransform=self.geotransform)
             ggrid = gdal_reproject(arr_grid.dataset,
                                    src_srs=self.projection,
-                                   dst_srs=dst_proj,
+                                   dst_srs=projection,
                                    resampling=gdalconst.GRA_Average,
                                    as_gdal_grid=True)
             new_data.append(ggrid.np_array())
@@ -430,6 +424,24 @@ class LSMGridReader(object):
         self.to_datetime()
         return self._export_dataset(variable, np.array(new_data),
                                     ggrid)
+
+    def to_utm(self, variable):
+        """Convert Grid to UTM projection at center of grid.
+
+            Parameters
+            ----------
+            variable: :obj:`str`
+                Name of variable in dataset.
+
+            Returns
+            -------
+            :func:`xarray.Dataset`
+        """
+        # get utm projection
+        center_lon, center_lat = self.center
+        dst_proj = utm_proj_from_latlon(center_lat, center_lon,
+                                        as_osr=True)
+        return self.to_projection(variable, dst_proj)
 
     def to_tif(self, variable, time_index, out_path):
         """Dump a variable at a time index to a geotiff.
