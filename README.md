@@ -7,4 +7,6 @@ An xarray extension for land surface models.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/aa0tcguo4iqw7aa6/branch/master?svg=true)](https://ci.appveyor.com/project/snowman2/pangaea/branch/master)
 
+[![Coverage Status](https://coveralls.io/repos/github/snowman2/pangaea/badge.svg?branch=master)](https://coveralls.io/github/snowman2/pangaea?branch=master)
+
 [![Documentation Status](https://readthedocs.org/projects/pangaea/badge/?version=latest)](http://pangaea.readthedocs.io/en/latest/?badge=latest)
