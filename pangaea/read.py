@@ -10,8 +10,9 @@
     This module provides helper functions to read in
     land surface model datasets.
 """
+import numpy as np
+import pandas as pd
 import xarray as xr
-
 
 def open_mfdataset(path_to_lsm_files,
                    lat_var,
@@ -21,6 +22,8 @@ def open_mfdataset(path_to_lsm_files,
                    lon_dim,
                    time_dim,
                    lon_to_180=False,
+                   loader=None,
+                   engine=None,
                    autoclose=True):
     """
     Wrapper to open land surface model netcdf files
@@ -46,6 +49,10 @@ def open_mfdataset(path_to_lsm_files,
     lon_to_180: bool, optional, default=False
         It True, will convert longitude from [0 to 360]
         to [-180 to 180].
+    loader: str, optional, default=None
+        If 'hrrr', it will load in the HRRR dataset.
+    engine: str, optional
+        See: :func:`xarray.open_mfdataset` documentation.
     autoclose: :obj:`str`, optional, default=True
         If True, will use autoclose option with
         :func:`xarray.open_mfdataset`.
@@ -70,10 +77,34 @@ def open_mfdataset(path_to_lsm_files,
                            inplace=True)
         return xds
 
+    def extract_hrrr_date(xds):
+        """xarray loader for HRRR"""
+        for var in xds.variables:
+            if 'initial_time' in xds[var].attrs.keys():
+                grid_time = pd.to_datetime(xds[var].attrs['initial_time'],
+                                           format="%m/%d/%Y (%H:%M)")
+                if 'forecast_time' in xds[var].attrs.keys():
+                    time_units = 'h'
+                    if 'forecast_time_units' in xds[var].attrs.keys():
+                        time_units =  str(xds[var].attrs['forecast_time_units'][0])
+                    grid_time += np.timedelta64(int(xds[var].attrs['forecast_time'][0]),
+                                                time_units)
+
+                return xds.assign(time=grid_time)
+        raise ValueError("Time attribute missing: {0}".format(self.search_time_attr))
+
+    if loader == 'hrrr':
+        preprocess = extract_hrrr_date
+        engine = 'pynio' if engine is None else pynio
+    else:
+        preprocess = define_coords
+
     xds = xr.open_mfdataset(path_to_lsm_files,
                             autoclose=autoclose,
-                            preprocess=define_coords,
-                            concat_dim=time_dim)
+                            preprocess=preprocess,
+                            concat_dim=time_dim,
+                            engine=engine,
+                            )
     xds.lsm.y_var = lat_var
     xds.lsm.x_var = lon_var
     xds.lsm.time_var = time_var

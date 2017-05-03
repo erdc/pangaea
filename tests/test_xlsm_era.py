@@ -25,9 +25,10 @@ class ERA(object):
     lsm_lat_dim = 'latitude'
     lsm_lon_dim = 'longitude'
 
-    def __init__(self, tread, data_type):
+    def __init__(self, tread, grid_name):
+        self.grid_name = grid_name
         self.path_to_lsm_files = \
-            path.join(tread, '{0}_data'.format(data_type), '*.nc')
+            path.join(tread, '{0}_data'.format(grid_name), '*.nc')
 
     @property
     def xd(self):
@@ -41,23 +42,17 @@ class ERA(object):
                                  lon_to_180=True)
 
 
-@pytest.fixture(scope="module")
-def erai(request, tread):
-    return ERA(tread, 'erai')
+@pytest.fixture(scope="module", params=["erai"])
+def era(request, tread):
+    return ERA(tread, request.param)
 
-
-@pytest.fixture(scope="module")
-def era5(request, tread):
-    return ERA(tread, 'era5')
-
-
-def test_read_erai(erai):
-    """Test reading in ERA Interim grid"""
-    with erai.xd as xd:
+def test_read_era(era):
+    """Test reading in ERA Interim grids"""
+    with era.xd as xd:
         # make sure coordinates correct
-        assert erai.lsm_lat_var in xd.coords
-        assert erai.lsm_lon_var in xd.coords
-        assert erai.lsm_time_var in xd.coords
+        assert era.lsm_lat_var in xd.coords
+        assert era.lsm_lon_var in xd.coords
+        assert era.lsm_time_var in xd.coords
         # check @property attributes
         date_array = ['2016-01-02 00:00:00', '2016-01-02 03:00:00',
                       '2016-01-02 06:00:00', '2016-01-02 09:00:00',
