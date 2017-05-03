@@ -14,10 +14,12 @@ from affine import Affine
 
 import pangaea as pa
 
+from .conftest import compare_proj4, compare_rasters
 
-def test_read_wrf(tgrid):
+def test_read_wrf(tread):
     """Test reading in WRF grid"""
-    path_to_lsm_files = path.join(tgrid, 'wrf_data', '*.nc')
+    path_to_lsm_files = path.join(tread, 'wrf_data', '*.nc')
+    print(path_to_lsm_files)
     lsm_lat_var = 'XLAT'
     lsm_lon_var = 'XLONG'
     lsm_time_dim = 'Time'
@@ -52,12 +54,13 @@ def test_read_wrf(tgrid):
                      '+lat_2=35.0600013733 +lat_0=35.060005188 '
                      '+lon_0=-106.599998474 +x_0=0 +y_0=0 +a=6370000 '
                      '+b=6370000 +units=m +no_defs ')
-        assert xd.lsm.projection.ExportToProj4() == proj4_str
+        compare_proj4(xd.lsm.projection.ExportToProj4(), proj4_str)
         # check other attrs
         assert xd.lsm.epsg is None
         assert_almost_equal(xd.lsm.geotransform,
                             (-872999.84920640418, 5999.9997414365271, 0,
-                             657001.05737870606, 0, -6000.0006532160332))
+                             657001.05737870606, 0, -6000.0006532160332),
+                             decimal=3)
         assert_almost_equal(xd.lsm.dx, 5999.9997414365271)
         assert_almost_equal(xd.lsm.dy, 6000.0006532160332)
         assert xd.lsm.affine == Affine.from_gdal(*xd.lsm.geotransform)
@@ -83,14 +86,16 @@ def test_read_wrf(tgrid):
                               461999.00957301],
                              [450000.87845214,
                               455999.62489789,
-                              461998.74249732]])
+                              461998.74249732]],
+                              decimal=4)
         assert_almost_equal(y_coords[100:102, 220:223],
                             [[54001.6699001,
                               54002.25923271,
                               54001.19124676],
                              [48001.46501146,
                               48001.3544065,
-                              48001.84096264]])
+                              48001.84096264]],
+                              decimal=4)
         assert_almost_equal(xd.lsm.center,
                             (-106.6985855102539, 34.77546691894531))
 
@@ -113,3 +118,25 @@ def test_read_wrf(tgrid):
         cldfr = xd['CLDFRA'][:, :, 22:24, 100:102] \
             .max(dim='bottom_top')[:, ::-1, :]
         assert cldfr.equals(lcldfr)
+
+def test_wrf_tiff(tgrid):
+    """Test write wrf grid"""
+    path_to_lsm_files = path.join(tgrid.input, 'wrf_data', '*.nc')
+    lsm_lat_var = 'XLAT'
+    lsm_lon_var = 'XLONG'
+    lsm_time_dim = 'Time'
+    lsm_time_var = 'Times'
+    lsm_lat_dim = 'south_north'
+    lsm_lon_dim = 'west_east'
+
+    new_raster = path.join(tgrid.output, 'wrf_rainc.tif')
+    with pa.open_mfdataset(path_to_lsm_files,
+                           lat_var=lsm_time_var,
+                           lon_var=lsm_lon_var,
+                           time_var=lsm_time_var,
+                           lat_dim=lsm_lat_dim,
+                           lon_dim=lsm_lon_dim,
+                           time_dim=lsm_time_dim) as xd:
+         xd.lsm.to_tif('RAINC', 3, new_raster)
+         
+    compare_rasters(path.join(tgrid.compare, 'wrf_rainc.tif'), new_raster)
