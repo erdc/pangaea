@@ -160,6 +160,8 @@ class LSMGridReader(object):
                 # default to EPSG 4326
                 self._projection = osr.SpatialReference()
                 self._projection.ImportFromEPSG(4326)
+            # make sure EPSG loaded if possible
+            self._projection.AutoIdentifyEPSG()
         return self._projection
 
     @property
@@ -262,7 +264,7 @@ class LSMGridReader(object):
 
     def _export_dataset(self, variable, new_data, grid):
         """Export subset of dataset."""
-        lats, lons = grid.lat_lon(two_dimensional=True)
+        lats, lons = grid.latlon(as_2d=True)
 
         return xr.Dataset({variable: (['time', 'y', 'x'],
                                       new_data,

@@ -34,7 +34,6 @@ def test_read_wrf(tread):
                            lat_dim=lsm_lat_dim,
                            lon_dim=lsm_lon_dim,
                            time_dim=lsm_time_dim) as xd:
-        # print(xd)
         # make sure coordinates correct
         assert lsm_lat_var in xd.coords
         assert lsm_lon_var in xd.coords
@@ -138,5 +137,109 @@ def test_wrf_tiff(tgrid):
                            lon_dim=lsm_lon_dim,
                            time_dim=lsm_time_dim) as xd:
          xd.lsm.to_tif('RAINC', 3, new_raster)
-         
+
     compare_rasters(path.join(tgrid.compare, 'wrf_rainc.tif'), new_raster)
+
+
+def test_wrf_project(tread):
+    """Test project wrf grid"""
+    path_to_lsm_files = path.join(tread, 'wrf_data', '*.nc')
+    lsm_lat_var = 'XLAT'
+    lsm_lon_var = 'XLONG'
+    lsm_time_dim = 'Time'
+    lsm_time_var = 'Times'
+    lsm_lat_dim = 'south_north'
+    lsm_lon_dim = 'west_east'
+
+    with pa.open_mfdataset(path_to_lsm_files,
+                           lat_var=lsm_time_var,
+                           lon_var=lsm_lon_var,
+                           time_var=lsm_time_var,
+                           lat_dim=lsm_lat_dim,
+                           lon_dim=lsm_lon_dim,
+                           time_dim=lsm_time_dim) as xd:
+
+        pgrid = xd.lsm.to_utm('RAINC')
+        # make sure coordinates correct
+        assert 'lat' in pgrid.coords
+        assert 'lon' in pgrid.coords
+        assert 'time' in pgrid.coords
+        # check @property attributes
+        date_array = ['2016-08-23 22:00:00', '2016-08-23 23:00:00',
+                      '2016-08-24 00:00:00', '2016-08-24 01:00:00',
+                      '2016-08-24 02:00:00', '2016-08-24 03:00:00',
+                      '2016-08-24 04:00:00', '2016-08-24 05:00:00',
+                      '2016-08-24 06:00:00', '2016-08-24 07:00:00',
+                      '2016-08-24 08:00:00', '2016-08-24 09:00:00',
+                      '2016-08-24 10:00:00', '2016-08-24 11:00:00',
+                      '2016-08-24 12:00:00', '2016-08-24 13:00:00']
+        assert (pgrid.lsm.datetime == pd.to_datetime(date_array)).all()
+        # check projection
+        proj4_str = ('+proj=utm +zone=13 +datum=WGS84 +units=m +no_defs ')
+        compare_proj4(pgrid.lsm.projection.ExportToProj4(), proj4_str)
+        # check other attrs
+        assert pgrid.lsm.epsg == '32613'
+        assert_almost_equal(pgrid.lsm.geotransform,
+                            [-529776.2885911233, 6010.014137057385, 0.0,
+                             4558039.843039687, 0.0, -6010.014137057385],
+                             decimal=3)
+        assert_almost_equal(pgrid.lsm.dx, 6010.014137057385)
+        assert_almost_equal(pgrid.lsm.dy, 6010.014137057385)
+        assert pgrid.lsm.affine == Affine.from_gdal(*pgrid.lsm.geotransform)
+        assert pgrid.lsm.x_size == 291
+        assert pgrid.lsm.y_size == 230
+        lat, lon = pgrid.lsm.latlon
+        assert lat.shape == (230, 291)
+        assert lon.shape == (230, 291)
+        assert_almost_equal(lat[20:23, 145:148],
+                            [[40.0494547, 40.0505404, 40.0515833],
+                             [39.9953332, 39.9964168, 39.9974578],
+                             [39.9412112, 39.9422928, 39.9433317]])
+        assert_almost_equal(lon[144:147, 15:17],
+                            [[-114.9990177, -114.9356954],
+                             [-114.9929548, -114.9296693],
+                             [-114.9869079, -114.9236591]])
+        y_coords, x_coords = pgrid.lsm.coords
+        assert y_coords.shape == (230, 291)
+        assert x_coords.shape == (230, 291)
+        assert_almost_equal(x_coords[100:102, 220:223],
+                            [[795431.8286,
+                              801441.8428,
+                              807451.8569],
+                             [795431.8286,
+                              801441.8428,
+                              807451.8569]],
+                              decimal=4)
+        assert_almost_equal(y_coords[100:102, 220:223],
+                            [[3954033.4223,
+                              3954033.4223,
+                              3954033.4223],
+                             [3948023.4081,
+                              3948023.4081,
+                              3948023.4081]],
+                              decimal=4)
+        assert_almost_equal(pgrid.lsm.center,
+                            [-106.6965833, 34.8059311])
+
+def test_wrf_tiff_project(tgrid):
+    """Test write wrf grid"""
+    path_to_lsm_files = path.join(tgrid.input, 'wrf_data', '*.nc')
+    lsm_lat_var = 'XLAT'
+    lsm_lon_var = 'XLONG'
+    lsm_time_dim = 'Time'
+    lsm_time_var = 'Times'
+    lsm_lat_dim = 'south_north'
+    lsm_lon_dim = 'west_east'
+
+    new_raster = path.join(tgrid.output, 'wrf_rainc_utm.tif')
+    with pa.open_mfdataset(path_to_lsm_files,
+                           lat_var=lsm_time_var,
+                           lon_var=lsm_lon_var,
+                           time_var=lsm_time_var,
+                           lat_dim=lsm_lat_dim,
+                           lon_dim=lsm_lon_dim,
+                           time_dim=lsm_time_dim) as xd:
+         pgrid = xd.lsm.to_utm('RAINC')
+         pgrid.lsm.to_tif('RAINC', 3, new_raster)
+
+    compare_rasters(path.join(tgrid.compare, 'wrf_rainc_utm.tif'), new_raster)
