@@ -264,7 +264,7 @@ class LSMGridReader(object):
 
     def _export_dataset(self, variable, new_data, grid):
         """Export subset of dataset."""
-        lats, lons = grid.latlon(as_2d=True)
+        lats, lons = grid.latlon
 
         return xr.Dataset({variable: (['time', 'y', 'x'],
                                       new_data,
