@@ -18,5 +18,3 @@ dependencies:
 #- pynio
 #- sloot
 - wrf-python
-- pip:
-  - sloot
