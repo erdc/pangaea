@@ -39,7 +39,12 @@ before_install:
 #-----------------------------------------------------------------------------
 # Create conda environment for pangaea
 #-----------------------------------------------------------------------------
-- conda env create -f conda_env.yml python=$TRAVIS_PYTHON_VERSION
+- conda create -n pangaea python=%PYTHON_VERSION%
+- source activate pangaea
+- conda config --add channels conda-forge
+- conda install --file=conda-requirements.txt
+# restart environment
+- deactivate pangaea
 - source activate pangaea
 #-----------------------------------------------------------------------------
 # Install additional required python packages
