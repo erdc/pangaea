@@ -11,9 +11,11 @@ import os
 from numpy import array
 from numpy.testing import assert_almost_equal
 from osgeo import gdal
+from shutil import rmtree
 import pytest
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+
 
 def compare_proj4(original, new):
     """compare proj4 strings"""
@@ -43,6 +45,7 @@ def compare_proj4(original, new):
         except (ValueError, TypeError):
             assert orig_dict[key] == new_dict[key]
 
+
 def compare_rasters(original, new, precision=7):
     """compare two rasters"""
     ds_o = gdal.Open(original)
@@ -64,6 +67,7 @@ def compare_rasters(original, new, precision=7):
     for band_id in range(1, ds_o.RasterCount + 1):
         assert (ds_o.GetRasterBand(band_id).GetNoDataValue() ==
                 ds_n.GetRasterBand(band_id).GetNoDataValue())
+
 
 class TestDirectories(object):
     input = os.path.join(SCRIPT_DIR, 'input')
@@ -87,9 +91,11 @@ class TestDirectories(object):
                 else:
                     os.remove(path)
 
+
 @pytest.fixture(scope="module")
 def tread(request):
     return TestDirectories.input
+
 
 @pytest.fixture(scope="module")
 def tgrid(request):
