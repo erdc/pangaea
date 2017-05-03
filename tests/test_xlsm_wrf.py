@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-#  test_xlsm.py
+#  test_xlsm_wrf.py
 #  pangaea
 #
 #  Author : Alan D Snow, 2017.
@@ -11,16 +11,13 @@ from os import path
 from numpy.testing import assert_almost_equal
 import pandas as pd
 from affine import Affine
+import pytest
 
 import pangaea as pa
 
 from .conftest import compare_proj4, compare_rasters
 
-
-def test_read_wrf(tread):
-    """Test reading in WRF grid"""
-    path_to_lsm_files = path.join(tread, 'wrf_data', '*.nc')
-    print(path_to_lsm_files)
+class WRF(object):
     lsm_lat_var = 'XLAT'
     lsm_lon_var = 'XLONG'
     lsm_time_dim = 'Time'
@@ -28,17 +25,30 @@ def test_read_wrf(tread):
     lsm_lat_dim = 'south_north'
     lsm_lon_dim = 'west_east'
 
-    with pa.open_mfdataset(path_to_lsm_files,
-                           lat_var=lsm_lat_var,
-                           lon_var=lsm_lon_var,
-                           time_var=lsm_time_var,
-                           lat_dim=lsm_lat_dim,
-                           lon_dim=lsm_lon_dim,
-                           time_dim=lsm_time_dim) as xd:
+    def __init__(self, tread):
+        self.path_to_lsm_files = path.join(tread, 'wrf_data', '*.nc')
+
+    @property
+    def xd(self):
+        return pa.open_mfdataset(self.path_to_lsm_files,
+                                 lat_var=self.lsm_lat_var,
+                                 lon_var=self.lsm_lon_var,
+                                 time_var=self.lsm_time_var,
+                                 lat_dim=self.lsm_lat_dim,
+                                 lon_dim=self.lsm_lon_dim,
+                                 time_dim=self.lsm_time_dim)
+
+@pytest.fixture(scope="module")
+def wrf(request, tread):
+    return WRF(tread)
+
+def test_read_wrf(wrf):
+    """Test reading in WRF grid"""
+    with wrf.xd as xd:
         # make sure coordinates correct
-        assert lsm_lat_var in xd.coords
-        assert lsm_lon_var in xd.coords
-        assert lsm_time_var in xd.coords
+        assert wrf.lsm_lat_var in xd.coords
+        assert wrf.lsm_lon_var in xd.coords
+        assert wrf.lsm_time_var in xd.coords
         # check @property attributes
         date_array = ['2016-08-23 22:00:00', '2016-08-23 23:00:00',
                       '2016-08-24 00:00:00', '2016-08-24 01:00:00',
@@ -120,47 +130,18 @@ def test_read_wrf(tread):
         assert cldfr.equals(lcldfr)
 
 
-def test_wrf_tiff(tgrid):
+def test_wrf_tiff(wrf, tgrid):
     """Test write wrf grid"""
-    path_to_lsm_files = path.join(tgrid.input, 'wrf_data', '*.nc')
-    lsm_lat_var = 'XLAT'
-    lsm_lon_var = 'XLONG'
-    lsm_time_dim = 'Time'
-    lsm_time_var = 'Times'
-    lsm_lat_dim = 'south_north'
-    lsm_lon_dim = 'west_east'
-
     new_raster = path.join(tgrid.output, 'wrf_rainc.tif')
-    with pa.open_mfdataset(path_to_lsm_files,
-                           lat_var=lsm_lat_var,
-                           lon_var=lsm_lon_var,
-                           time_var=lsm_time_var,
-                           lat_dim=lsm_lat_dim,
-                           lon_dim=lsm_lon_dim,
-                           time_dim=lsm_time_dim) as xd:
+    with wrf.xd as xd:
         xd.lsm.to_tif('RAINC', 3, new_raster)
 
     compare_rasters(path.join(tgrid.compare, 'wrf_rainc.tif'), new_raster)
 
 
-def test_wrf_project(tread):
+def test_wrf_project(wrf):
     """Test project wrf grid"""
-    path_to_lsm_files = path.join(tread, 'wrf_data', '*.nc')
-    lsm_lat_var = 'XLAT'
-    lsm_lon_var = 'XLONG'
-    lsm_time_dim = 'Time'
-    lsm_time_var = 'Times'
-    lsm_lat_dim = 'south_north'
-    lsm_lon_dim = 'west_east'
-
-    with pa.open_mfdataset(path_to_lsm_files,
-                           lat_var=lsm_lat_var,
-                           lon_var=lsm_lon_var,
-                           time_var=lsm_time_var,
-                           lat_dim=lsm_lat_dim,
-                           lon_dim=lsm_lon_dim,
-                           time_dim=lsm_time_dim) as xd:
-
+    with wrf.xd as xd:
         pgrid = xd.lsm.to_utm('RAINC')
         # make sure coordinates correct
         assert 'lat' in pgrid.coords
@@ -224,24 +205,10 @@ def test_wrf_project(tread):
                             [-106.6965833, 34.8059311])
 
 
-def test_wrf_tiff_project(tgrid):
+def test_wrf_tiff_project(wrf, tgrid):
     """Test write wrf grid"""
-    path_to_lsm_files = path.join(tgrid.input, 'wrf_data', '*.nc')
-    lsm_lat_var = 'XLAT'
-    lsm_lon_var = 'XLONG'
-    lsm_time_dim = 'Time'
-    lsm_time_var = 'Times'
-    lsm_lat_dim = 'south_north'
-    lsm_lon_dim = 'west_east'
-
     new_raster = path.join(tgrid.output, 'wrf_rainc_utm.tif')
-    with pa.open_mfdataset(path_to_lsm_files,
-                           lat_var=lsm_lat_var,
-                           lon_var=lsm_lon_var,
-                           time_var=lsm_time_var,
-                           lat_dim=lsm_lat_dim,
-                           lon_dim=lsm_lon_dim,
-                           time_dim=lsm_time_dim) as xd:
+    with wrf.xd as xd:
         pgrid = xd.lsm.to_utm('RAINC')
         pgrid.lsm.to_tif('RAINC', 3, new_raster)
 

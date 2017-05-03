@@ -20,6 +20,7 @@ def open_mfdataset(path_to_lsm_files,
                    lat_dim,
                    lon_dim,
                    time_dim,
+                   lon_to_180=False,
                    autoclose=True):
     """
     Wrapper to open land surface model netcdf files
@@ -42,7 +43,10 @@ def open_mfdataset(path_to_lsm_files,
         Longitude dimension (Ex. lon).
     time_dim: :obj:`str`
         Time dimension (ex. time).
-    autoclose: :obj:`str`
+    lon_to_180: bool, optional, default=False
+        It True, will convert longitude from [0 to 360]
+        to [-180 to 180].
+    autoclose: :obj:`str`, optional, default=True
         If True, will use autoclose option with
         :func:`xarray.open_mfdataset`.
 
@@ -76,6 +80,7 @@ def open_mfdataset(path_to_lsm_files,
     xds.lsm.y_dim = lat_dim
     xds.lsm.x_dim = lon_dim
     xds.lsm.time_dim = time_dim
+    xds.lsm.lon_to_180 = lon_to_180
     xds.lsm.to_datetime()
 
     return xds

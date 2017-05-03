@@ -334,9 +334,9 @@ class LSMGridReader(object):
 
     def getvar(self, variable,
                x_index_start=0,
-               x_index_end=-1,
+               x_index_end=None,
                y_index_start=0,
-               y_index_end=-1,
+               y_index_end=None,
                calc_4d_method=None,
                calc_4d_dim=None):
         """Get variable from model with subset options.
@@ -366,12 +366,18 @@ class LSMGridReader(object):
         if 'MAP_PROJ' in self._obj.attrs:
             # WRF Y DIM IS BACKWARDS
             original_y_index_start = y_index_start
-            y_index_start = self.y_size - y_index_end - 1
-            if y_index_end < 0:
-                y_index_start = -y_index_end - 1
-            y_index_end = self.y_size - original_y_index_start - 1
-            if original_y_index_start < 0:
-                y_index_end = -original_y_index_start
+            if y_index_end is None:
+                y_index_start = 0
+            else:
+                y_index_start = self.y_size - y_index_end - 1
+                if y_index_end < 0:
+                    y_index_start = -y_index_end - 1
+            if original_y_index_start is None:
+                y_index_end = None
+            else:
+                y_index_end = self.y_size - original_y_index_start - 1
+                if original_y_index_start < 0:
+                    y_index_end = -original_y_index_start
 
         data = self._getvar(variable,
                             slice(x_index_start, x_index_end),
