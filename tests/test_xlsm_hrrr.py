@@ -19,6 +19,8 @@ import pangaea as pa
 
 from .conftest import compare_proj4
 
+pa.log_to_console()
+
 
 class HRRR(object):
     lsm_lat_var = 'gridlat_0'
@@ -111,7 +113,6 @@ def test_read_hrrr(hrrr):
         assert_almost_equal(xd.lsm.center,
                             [-111.4938354, 40.4941864])
         # test getvar method
-        print(xd)
         lrhum = xd.lsm.getvar('RH_P0_L103_GLC0')
         rhum = xd['RH_P0_L103_GLC0']
         assert rhum.equals(lrhum)

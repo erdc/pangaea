@@ -17,6 +17,7 @@ import pangaea as pa
 
 from .conftest import compare_proj4
 
+pa.log_to_console(level='DEBUG')
 
 class ERA(object):
     lsm_lat_var = 'latitude'

@@ -10,15 +10,7 @@
 """
 from .xlsm import LSMGridReader
 from .read import open_mfdataset
-
-
-def version():
-    """
-    Returns
-    -------
-    str: Version of pangaea
-    """
-    return '0.0.1'
-
+from .log import log_to_console, log_to_file
+from .meta import version
 
 __version__ = version()

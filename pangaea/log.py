@@ -17,7 +17,7 @@ import os
 # external modules
 import appdirs
 # local modules
-from . import version
+from .meta import version
 
 LOGGER = logging.getLogger('pangaea')
 LOGGER.addHandler(logging.NullHandler())
@@ -50,7 +50,7 @@ def log_to_console(status=True, level=None):
         console_handler.setFormatter(formatter)
         LOGGER.addHandler(console_handler)
 
-        LOGGER.info("pangaea %", version)
+        LOGGER.info("pangaea %s", version())
 
     else:
         for handle in LOGGER.handlers:
@@ -83,13 +83,13 @@ def log_to_file(status=True, filename=DEFAULT_LOG_FILE, level=None):
 
         file_handler = logging.FileHandler(filename)
         # create formatter
-        fomat_str = '%(asctime)s - %(levelname)s-%(name)s: %(message)s'
+        fomat_str = '%(levelname)s-%(name)s: %(message)s'
         formatter = logging.Formatter(fomat_str)
         # add formatter to handler
         file_handler.setFormatter(formatter)
         LOGGER.addHandler(file_handler)
 
-        LOGGER.info("pangaea %", version)
+        LOGGER.info("pangaea %s", version())
 
     else:
         for handle in LOGGER.handlers:

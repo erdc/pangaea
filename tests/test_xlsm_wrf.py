@@ -17,6 +17,7 @@ import pangaea as pa
 
 from .conftest import compare_proj4, compare_rasters
 
+pa.log_to_console(False)
 
 class WRF(object):
     lsm_lat_var = 'XLAT'
@@ -210,9 +211,15 @@ def test_wrf_project(wrf):
 
 def test_wrf_tiff_project(wrf, tgrid):
     """Test write wrf grid"""
+    log_file = path.join(tgrid.output, 'wrf_tif.log')
+    pa.log_to_file(filename=log_file, level='DEBUG')
     new_raster = path.join(tgrid.output, 'wrf_rainc_utm.tif')
     with wrf.xd as xd:
         pgrid = xd.lsm.to_utm('RAINC')
         pgrid.lsm.to_tif('RAINC', 3, new_raster)
 
     compare_rasters(path.join(tgrid.compare, 'wrf_rainc_utm.tif'), new_raster)
+    pa.log_to_file(False)
+    compare_log_file = path.join(tgrid.compare, 'wrf_tif.log')
+    with open(log_file) as lgf, open(compare_log_file) as clgf:
+        assert lgf.read() == clgf.read()
