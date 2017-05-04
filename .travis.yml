@@ -36,6 +36,7 @@ before_install:
 - ./miniconda.sh -b -p $HOME/miniconda
 - export PATH=$HOME/miniconda/bin:$PATH
 - conda update --yes conda python
+- conda config --set always_yes True
 #-----------------------------------------------------------------------------
 # Create conda environment for pangaea
 #-----------------------------------------------------------------------------
