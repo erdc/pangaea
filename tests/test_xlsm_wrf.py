@@ -119,7 +119,9 @@ def test_read_wrf(wrf):
                                x_index_end=102,
                                y_index_start=200,
                                y_index_end=202)
-        rainc = xd['RAINC'][:, 22:24, 100:102][:, ::-1, :]
+        rainc = xd['RAINC'][:, ::-1, :][:, 200:202, 100:102]
+        print(lrainc)
+        print(rainc)
         assert rainc.equals(lrainc)
 
         lcldfr = xd.lsm.getvar('CLDFRA',
@@ -129,8 +131,8 @@ def test_read_wrf(wrf):
                                y_index_end=202,
                                calc_4d_method='max',
                                calc_4d_dim='bottom_top')
-        cldfr = xd['CLDFRA'][:, :, 22:24, 100:102] \
-            .max(dim='bottom_top')[:, ::-1, :]
+        cldfr = xd['CLDFRA'][:, :, ::-1, :][:, :, 200:202, 100:102] \
+            .max(dim='bottom_top')
         assert cldfr.equals(lcldfr)
 
 

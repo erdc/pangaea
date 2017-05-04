@@ -313,7 +313,7 @@ class LSMGridReader(object):
         return self._export_dataset(variable, np.array(new_data),
                                     resampled_data_grid)
 
-    def _getvar(self, variable, xslice, yslice):
+    def _getvar(self, variable, xslice, yslice, inverse_y=False):
         """Get the variable either directly or calculated"""
         # FAILED ATTEMPT TO USE wrf.getvar
         # if 'MAP_PROJ' in self._obj.attrs:
@@ -322,15 +322,27 @@ class LSMGridReader(object):
         #    except AttributeError:
         #        nc_file = self._obj._file_obj.file_objs
         #    var = wrf.getvar(nc_file, variable)
+        def extract_slice(var, slice_arr):
+            """extract by slice"""
+            if var.ndim == 4:
+                var = var[slice_arr[0], slice_arr[1], slice_arr[2], slice_arr[3]]
+            if var.ndim == 3:
+                var = var[slice_arr[0], slice_arr[1], slice_arr[2]]
+            else:
+                var = var[slice_arr[0], slice_arr[1]]
+            return var
+
+
         var = self._obj[variable]
         slc = [slice(None)] * var.ndim
+        # flip in y-direction
+        if inverse_y:
+            slc[var.get_axis_num(self.y_dim)] = slice(None, None, -1)
+            var = extract_slice(var, slc)
+        # get data out
         slc[var.get_axis_num(self.x_dim)] = xslice
         slc[var.get_axis_num(self.y_dim)] = yslice
-        if var.ndim == 4:
-            var = var[:, :, slc[-2], slc[-1]]
-        else:
-            var = var[:, slc[-2], slc[-1]]
-        return var
+        return extract_slice(var, slc)
 
     def getvar(self, variable,
                x_index_start=0,
@@ -363,25 +375,15 @@ class LSMGridReader(object):
             -------
             :func:`xarray.DataArray`
         """
+        inverse_y = False
         if 'MAP_PROJ' in self._obj.attrs:
             # WRF Y DIM IS BACKWARDS
-            original_y_index_start = y_index_start
-            if y_index_end is None:
-                y_index_start = 0
-            else:
-                y_index_start = self.y_size - y_index_end - 1
-                if y_index_end < 0:
-                    y_index_start = -y_index_end - 1
-            if original_y_index_start is None:
-                y_index_end = None
-            else:
-                y_index_end = self.y_size - original_y_index_start - 1
-                if original_y_index_start < 0:
-                    y_index_end = -original_y_index_start
+            inverse_y = True
 
         data = self._getvar(variable,
                             slice(x_index_start, x_index_end),
-                            slice(y_index_start, y_index_end))
+                            slice(y_index_start, y_index_end),
+                            inverse_y)
 
         if data.ndim == 4:
             if calc_4d_method is None or calc_4d_dim is None:
@@ -389,15 +391,6 @@ class LSMGridReader(object):
                                  "Need 'calc_4d_method' and 'calc_4d_dim' "
                                  "to proceed ...".format(var=variable))
             data = getattr(data, calc_4d_method)(dim=calc_4d_dim)
-
-        if 'MAP_PROJ' in self._obj.attrs:
-            # Y DIM IS BACKWARDS
-            slc = [slice(None)] * data.ndim
-            slc[data.get_axis_num(self.y_dim)] = slice(None, None, -1)
-            if data.ndim == 3:
-                data = data[:, slc[-2], slc[-1]]
-            else:
-                data = data[slc[-2], slc[-1]]
 
         data[self.time_var] = self._obj[self.time_var]
 
