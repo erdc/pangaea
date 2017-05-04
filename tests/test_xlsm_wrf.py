@@ -131,6 +131,12 @@ def test_read_wrf(wrf):
             .max(dim='bottom_top')
         assert cldfr.equals(lcldfr)
 
+        with pytest.raises(ValueError):
+            lcldfr = xd.lsm.getvar('CLDFRA')
+        with pytest.raises(ValueError):
+            lcldfr = xd.lsm.getvar('CLDFRA', calc_4d_method='max')
+        with pytest.raises(ValueError):
+            lcldfr = xd.lsm.getvar('CLDFRA', calc_4d_dim='bottom_top')
 
 def test_wrf_tiff(wrf, tgrid):
     """Test write wrf grid"""
