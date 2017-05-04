@@ -313,7 +313,7 @@ class LSMGridReader(object):
         return self._export_dataset(variable, np.array(new_data),
                                     resampled_data_grid)
 
-    def _getvar(self, variable, xslice, yslice, inverse_y=False):
+    def _getvar(self, variable, yslice, xslice, inverse_y=False):
         """Get the variable either directly or calculated"""
         # FAILED ATTEMPT TO USE wrf.getvar
         # if 'MAP_PROJ' in self._obj.attrs:
@@ -336,7 +336,8 @@ class LSMGridReader(object):
         var = self._obj[variable]
         slc = [slice(None)] * var.ndim
         # flip in y-direction
-        if inverse_y:
+        if 'MAP_PROJ' in self._obj.attrs:
+            # WRF Y DIM IS BACKWARDS
             slc[var.get_axis_num(self.y_dim)] = slice(None, None, -1)
             var = extract_slice(var, slc)
         # get data out
@@ -345,10 +346,8 @@ class LSMGridReader(object):
         return extract_slice(var, slc)
 
     def getvar(self, variable,
-               x_index_start=0,
-               x_index_end=None,
-               y_index_start=0,
-               y_index_end=None,
+               yslice=slice(None),
+               xslice=slice(None),
                calc_4d_method=None,
                calc_4d_dim=None):
         """Get variable from model with subset options.
@@ -357,14 +356,10 @@ class LSMGridReader(object):
             ----------
             variable: :obj:`str`
                 Name of variable in dataset.
-            x_index_start: int, optional
-                x-index of grid to start grabbing data from.
-            x_index_end: int, optional
-                x-index of grid to finish grabbing data from.
-            y_index_start: int, optional
-                y-index of grid to start grabbing data from.
-            y_index_end: int, optional
-                y-index of grid to finish grabbing data from.
+            yslice: :obj:`slice`, optional
+                Slice in y-direction of grid to extract data from.
+            xslice: :obj:`slice`, optional
+                Slice in x-direction of grid to extract data from.
             calc_4d_method: :obj:`str`
                 Method to convert 4D variables to 3D variables
                 (Ex. 'mean', 'min', or 'max').
@@ -375,15 +370,7 @@ class LSMGridReader(object):
             -------
             :func:`xarray.DataArray`
         """
-        inverse_y = False
-        if 'MAP_PROJ' in self._obj.attrs:
-            # WRF Y DIM IS BACKWARDS
-            inverse_y = True
-
-        data = self._getvar(variable,
-                            slice(x_index_start, x_index_end),
-                            slice(y_index_start, y_index_end),
-                            inverse_y)
+        data = self._getvar(variable, yslice, xslice)
 
         if data.ndim == 4:
             if calc_4d_method is None or calc_4d_dim is None:

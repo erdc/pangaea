@@ -116,18 +116,15 @@ def test_read_wrf(wrf):
 
         # test getvar method
         lrainc = xd.lsm.getvar('RAINC',
-                               x_index_start=100,
-                               x_index_end=102,
-                               y_index_start=200,
-                               y_index_end=202)
+                               yslice=slice(200, 202),
+                               xslice=slice(100, 102))
+
         rainc = xd['RAINC'][:, 23:25, 100:102][:, ::-1]
         assert rainc.equals(lrainc)
 
         lcldfr = xd.lsm.getvar('CLDFRA',
-                               x_index_start=100,
-                               x_index_end=102,
-                               y_index_start=200,
-                               y_index_end=202,
+                               yslice=slice(200, 202),
+                               xslice=slice(100, 102),
                                calc_4d_method='max',
                                calc_4d_dim='bottom_top')
         cldfr = xd['CLDFRA'][:, :, ::-1][:, :, 200:202, 100:102] \
