@@ -151,7 +151,7 @@ class LSMGridReader(object):
             map_proj4 = self._obj.attrs.get('proj4')
             if map_proj4 is not None:
                 self._projection = osr.SpatialReference()
-                self._projection.ImportFromProj4(map_proj4)
+                self._projection.ImportFromProj4(str(map_proj4))
             elif 'MAP_PROJ' in self._obj.attrs:
                 self._load_wrf_projection()
             elif 'grid_type' in self._obj[self.y_var].attrs:

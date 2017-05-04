@@ -138,4 +138,11 @@ def test_resample_era(era, tgrid):
 
     compare_netcdf = path.join(tgrid.compare, 'resample_era.nc')
     with xr.open_dataset(compare_netcdf) as xdc:
-        assert rsd.equals(xdc)
+        assert_almost_equal(rsd.tp.values, xdc.tp.values)
+        assert_almost_equal(rsd.lat.values, xdc.lat.values)
+        assert_almost_equal(rsd.lon.values, xdc.lon.values)
+        compare_proj4(rsd.lsm.projection.ExportToProj4(),
+                      xdc.lsm.projection.ExportToProj4())
+        assert_almost_equal(rsd.lsm.geotransform,
+                            xdc.lsm.geotransform,
+                            decimal=3)
