@@ -59,7 +59,7 @@ def compare_rasters(original, new, precision=7):
     # compare geotransform
     assert_almost_equal(ds_o.GetGeoTransform(),
                         ds_n.GetGeoTransform(),
-                        decimal=9)
+                        decimal=5)
 
     # compare band counts
     assert ds_o.RasterCount == ds_n.RasterCount
