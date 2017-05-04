@@ -61,7 +61,6 @@ def open_mfdataset(path_to_lsm_files,
     Returns
     -------
     :func:`xarray.Dataset`
-
     """
     def define_coords(xds):
         """xarray loader to ensure coordinates are loaded correctly"""
