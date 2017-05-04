@@ -138,6 +138,7 @@ def test_read_wrf(wrf):
         with pytest.raises(ValueError):
             lcldfr = xd.lsm.getvar('CLDFRA', calc_4d_dim='bottom_top')
 
+
 def test_wrf_tiff(wrf, tgrid):
     """Test write wrf grid"""
     new_raster = path.join(tgrid.output, 'wrf_rainc.tif')
