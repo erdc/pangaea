@@ -17,6 +17,7 @@ import pangaea as pa
 
 from .conftest import compare_proj4
 
+
 class ERA(object):
     lsm_lat_var = 'latitude'
     lsm_lon_var = 'longitude'
@@ -45,6 +46,7 @@ class ERA(object):
 @pytest.fixture(scope="module", params=["erai"])
 def era(request, tread):
     return ERA(tread, request.param)
+
 
 def test_read_era(era):
     """Test reading in ERA Interim grids"""

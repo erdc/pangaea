@@ -17,6 +17,7 @@ import pangaea as pa
 
 from .conftest import compare_proj4, compare_rasters
 
+
 class WRF(object):
     lsm_lat_var = 'XLAT'
     lsm_lon_var = 'XLONG'
@@ -38,9 +39,11 @@ class WRF(object):
                                  lon_dim=self.lsm_lon_dim,
                                  time_dim=self.lsm_time_dim)
 
+
 @pytest.fixture(scope="module")
 def wrf(request, tread):
     return WRF(tread)
+
 
 def test_read_wrf(wrf):
     """Test reading in WRF grid"""
