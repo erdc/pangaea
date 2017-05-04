@@ -12,6 +12,7 @@ from numpy.testing import assert_almost_equal
 import pandas as pd
 from affine import Affine
 import pytest
+import xarray as xr
 
 import pangaea as pa
 
@@ -126,3 +127,14 @@ def test_read_era(era):
         lrainc = xd.lsm.getvar('tp')
         rainc = xd['tp']
         assert rainc.equals(lrainc)
+
+
+def test_resample_era(era, tgrid):
+    """Test resample ERA Interim grid"""
+    resample_grid = path.join(tgrid.input, 'resample_grid.asc')
+    with era.xd as xd:
+        rsd = xd.lsm.resample('tp', match_grid=resample_grid)
+
+    compare_netcdf = path.join(tgrid.compare, 'resample_era.nc')
+    with xr.open_dataset(compare_netcdf) as xdc:
+        assert rsd.equals(xdc)
