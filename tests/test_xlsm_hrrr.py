@@ -6,6 +6,7 @@
 #  Author : Alan D Snow, 2017.
 #  License: BSD 3-Clause
 
+import os
 from os import path
 import sys
 
@@ -16,7 +17,8 @@ import pytest
 
 import pangaea as pa
 
-from .conftest import compare_proj4, compare_rasters
+from .conftest import compare_proj4
+
 
 class HRRR(object):
     lsm_lat_var = 'gridlat_0'
@@ -46,8 +48,11 @@ class HRRR(object):
 def hrrr(request, tread):
     return HRRR(tread)
 
+
 @pytest.mark.skipif(sys.version_info > (3,0),
                     reason="pynio only works on Python 2")
+@pytest.mark.skipif(os.name == 'nt',
+                    reason="pynio not available on Windows")
 def test_read_hrrr(hrrr):
     """Test reading in hrrr grids"""
     with hrrr.xd as xd:

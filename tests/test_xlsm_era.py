@@ -15,7 +15,7 @@ import pytest
 
 import pangaea as pa
 
-from .conftest import compare_proj4, compare_rasters
+from .conftest import compare_proj4
 
 class ERA(object):
     lsm_lat_var = 'latitude'
