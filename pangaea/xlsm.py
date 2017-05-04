@@ -313,7 +313,7 @@ class LSMGridReader(object):
         return self._export_dataset(variable, np.array(new_data),
                                     resampled_data_grid)
 
-    def _getvar(self, variable, yslice, xslice, inverse_y=False):
+    def _getvar(self, variable, yslice, xslice):
         """Get the variable either directly or calculated"""
         # FAILED ATTEMPT TO USE wrf.getvar
         # if 'MAP_PROJ' in self._obj.attrs:
@@ -325,13 +325,13 @@ class LSMGridReader(object):
         def extract_slice(var, slice_arr):
             """extract by slice"""
             if var.ndim == 4:
-                var = var[slice_arr[0], slice_arr[1], slice_arr[2], slice_arr[3]]
+                var = var[slice_arr[0], slice_arr[1],
+                          slice_arr[2], slice_arr[3]]
             if var.ndim == 3:
                 var = var[slice_arr[0], slice_arr[1], slice_arr[2]]
             else:
                 var = var[slice_arr[0], slice_arr[1]]
             return var
-
 
         var = self._obj[variable]
         slc = [slice(None)] * var.ndim
