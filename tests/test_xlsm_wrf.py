@@ -19,6 +19,7 @@ from .conftest import compare_proj4, compare_rasters
 
 pa.log_to_console(False)
 
+
 class WRF(object):
     lsm_lat_var = 'XLAT'
     lsm_lon_var = 'XLONG'
@@ -120,8 +121,6 @@ def test_read_wrf(wrf):
                                y_index_start=200,
                                y_index_end=202)
         rainc = xd['RAINC'][:, 23:25, 100:102][:, ::-1]
-        print(lrainc)
-        print(rainc)
         assert rainc.equals(lrainc)
 
         lcldfr = xd.lsm.getvar('CLDFRA',
