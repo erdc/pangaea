@@ -49,7 +49,7 @@ def hrrr(request, tread):
     return HRRR(tread)
 
 
-@pytest.mark.skipif(sys.version_info > (3,0),
+@pytest.mark.skipif(sys.version_info > (3, 0),
                     reason="pynio only works on Python 2")
 @pytest.mark.skipif(os.name == 'nt',
                     reason="pynio not available on Windows")
@@ -101,12 +101,12 @@ def test_read_hrrr(hrrr):
         assert y_coords.shape == (41, 33)
         assert x_coords.shape == (41, 33)
         assert_almost_equal(y_coords[34:36, 27:29],
-                            [[ 132049.5402816,  132047.7681692],
-                             [ 135045.8915611,  135043.9354721]],
+                            [[132049.5402816, 132047.7681692],
+                             [135045.8915611, 135043.9354721]],
                             decimal=4)
         assert_almost_equal(x_coords[34:36, 27:29],
                             [[-1149410.5787115, -1146403.1090818],
-                             [-1149412.48759  , -1146404.8676995]],
+                             [-1149412.48759, -1146404.8676995]],
                             decimal=4)
         assert_almost_equal(xd.lsm.center,
                             [-111.4938354, 40.4941864])

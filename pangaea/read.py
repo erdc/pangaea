@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+
 def open_mfdataset(path_to_lsm_files,
                    lat_var,
                    lon_var,
@@ -86,16 +87,16 @@ def open_mfdataset(path_to_lsm_files,
                 if 'forecast_time' in xds[var].attrs.keys():
                     time_units = 'h'
                     if 'forecast_time_units' in xds[var].attrs.keys():
-                        time_units =  str(xds[var].attrs['forecast_time_units'][0])
-                    grid_time += np.timedelta64(int(xds[var].attrs['forecast_time'][0]),
-                                                time_units)
+                        time_units = \
+                            str(xds[var].attrs['forecast_time_units'][0])
+                    time_dt = int(xds[var].attrs['forecast_time'][0])
+                    grid_time += np.timedelta64(time_dt, time_units)
 
                 return xds.assign(time=grid_time)
-        raise ValueError("Time attribute missing: {0}".format(self.search_time_attr))
 
     if loader == 'hrrr':
         preprocess = extract_hrrr_date
-        engine = 'pynio' if engine is None else pynio
+        engine = 'pynio' if engine is None else engine
     else:
         preprocess = define_coords
 
