@@ -50,7 +50,6 @@ before_install:
 #-----------------------------------------------------------------------------
 # Install additional required python packages
 #-----------------------------------------------------------------------------
-- conda config --add channels conda-forge
 - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
     conda install --yes pynio;
   fi
