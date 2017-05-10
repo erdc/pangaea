@@ -14,12 +14,10 @@ import numpy as np
 from osgeo import osr, gdalconst
 import pandas as pd
 from pyproj import Proj, transform
+from sloot.grid import (geotransform_from_yx, resample_grid,
+                        utm_proj_from_latlon, ArrayGrid)
 import wrf
 import xarray as xr
-
-from sloot.grid import (geotransform_from_yx, gdal_reproject,
-                        resample_grid, utm_proj_from_latlon,
-                        ArrayGrid)
 
 
 @xr.register_dataset_accessor('lsm')
@@ -402,11 +400,7 @@ class LSMGridReader(object):
             arr_grid = ArrayGrid(in_array=self._obj[variable][band].values,
                                  wkt_projection=self.projection.ExportToWkt(),
                                  geotransform=self.geotransform)
-            ggrid = gdal_reproject(arr_grid.dataset,
-                                   src_srs=self.projection,
-                                   dst_srs=projection,
-                                   resampling=gdalconst.GRA_Average,
-                                   as_gdal_grid=True)
+            ggrid = arr_grid.to_projection(projection, gdalconst.GRA_Average)
             new_data.append(ggrid.np_array())
 
         self.to_datetime()
