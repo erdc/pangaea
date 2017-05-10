@@ -51,6 +51,8 @@ class LSMGridReader(object):
         self.time_dim = 'time'
         # convert lon from [0 to 360] to [-180 to 180]
         self.lon_to_180 = False
+        # coordinates need to be projectied
+        self.coords_projected = True
 
     def to_datetime(self):
         """Converts time to datetime."""
@@ -154,6 +156,11 @@ class LSMGridReader(object):
                 self._load_wrf_projection()
             elif 'grid_type' in self._obj[self.y_var].attrs:
                 self._load_grib_projection()
+            elif 'ProjectionCoordinateSystem' in self._obj.keys():
+                proj4_str = self._obj['ProjectionCoordinateSystem'] \
+                                .attrs['proj4']
+                self._projection = osr.SpatialReference()
+                self._projection.ImportFromProj4(str(proj4_str))
             else:
                 # default to EPSG 4326
                 self._projection = osr.SpatialReference()
@@ -214,41 +221,52 @@ class LSMGridReader(object):
         return self._obj.dims[self.y_dim]
 
     @property
+    def _raw_coords(self):
+        """Gets the raw coordinated of dataset"""
+        x_coords = self._obj[self.x_var].values
+        y_coords = self._obj[self.y_var].values
+
+        if x_coords.ndim < 2:
+            x_coords, y_coords = np.meshgrid(x_coords, y_coords)
+
+        return y_coords, x_coords
+
+    @property
     def latlon(self):
         """Returns lat,lon arrays"""
         if 'MAP_PROJ' in self._obj.attrs:
             lat, lon = wrf.latlon_coords(self._obj, as_np=True)
         else:
-            lon = self._obj[self.x_var].values
-            lat = self._obj[self.y_var].values
-
-        if lat.ndim == 3:
-            lat = lat[0]
-        if lon.ndim == 3:
-            lon = lon[0]
+            lat, lon = self._raw_coords
 
         if 'MAP_PROJ' in self._obj.attrs:
             # WRF Grid is upside down
             lat = lat[::-1]
             lon = lon[::-1]
 
+        if self.coords_projected:
+            lon, lat = transform(Proj(self.projection.ExportToProj4()),
+                                 Proj(init='epsg:4326'),
+                                 lon,
+                                 lat)
+
         if self.lon_to_180:
             lon = (lon + 180) % 360 - 180  # convert [0, 360] to [-180, 180]
-
-        if lat.ndim < 2:
-            lon, lat = np.meshgrid(lon, lat)
 
         return lat, lon
 
     @property
     def coords(self):
         """Returns y, x coordinate arrays"""
-        lat, lon = self.latlon
-        x_coords, y_coords = transform(Proj(init='epsg:4326'),
-                                       Proj(self.projection.ExportToProj4()),
-                                       lon,
-                                       lat)
-        return y_coords, x_coords
+        if not self.coords_projected:
+            lat, lon = self.latlon
+            x_coords, y_coords = transform(Proj(init='epsg:4326'),
+                                           Proj(self.projection.ExportToProj4()),
+                                           lon,
+                                           lat)
+            return y_coords, x_coords
+        else:
+            return self._raw_coords
 
     @property
     def center(self):

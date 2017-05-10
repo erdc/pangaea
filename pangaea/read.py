@@ -23,6 +23,7 @@ def open_mfdataset(path_to_lsm_files,
                    lon_dim,
                    time_dim,
                    lon_to_180=False,
+                   coords_projected=False,
                    loader=None,
                    engine=None,
                    autoclose=True):
@@ -50,6 +51,9 @@ def open_mfdataset(path_to_lsm_files,
     lon_to_180: bool, optional, default=False
         It True, will convert longitude from [0 to 360]
         to [-180 to 180].
+    coords_projected: bool, optional, default=False
+        It True, it will assume the coordinates are already
+        in the projected coordinate system.
     loader: str, optional, default=None
         If 'hrrr', it will load in the HRRR dataset.
     engine: str, optional
@@ -112,6 +116,7 @@ def open_mfdataset(path_to_lsm_files,
     xds.lsm.x_dim = lon_dim
     xds.lsm.time_dim = time_dim
     xds.lsm.lon_to_180 = lon_to_180
+    xds.lsm.coords_projected = coords_projected
     xds.lsm.to_datetime()
 
     return xds
