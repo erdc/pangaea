@@ -16,4 +16,4 @@ def version():
     -------
     str: Version of pangaea
     """
-    return '0.0.1'
+    return '0.0.2'
