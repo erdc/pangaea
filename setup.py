@@ -9,7 +9,7 @@
 from setuptools import setup, find_packages
 
 requires = [
-    'sloot',
+    'gazar',
     'wrf-python',
 ]
 

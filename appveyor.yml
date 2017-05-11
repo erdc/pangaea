@@ -28,8 +28,7 @@ install:
 #-----------------------------------------------------------------------------
   - conda create -n pangaea python=%PYTHON_VERSION%
   - activate pangaea
-  - conda config --add channels conda-forge
-  - conda install --file=conda-requirements.txt
+  - conda env update -n pangaea -f conda_env.yml
   # restart environment
   - deactivate pangaea
   - activate pangaea

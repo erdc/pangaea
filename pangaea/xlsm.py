@@ -14,7 +14,7 @@ import numpy as np
 from osgeo import osr, gdalconst
 import pandas as pd
 from pyproj import Proj, transform
-from sloot.grid import (geotransform_from_yx, resample_grid,
+from gazar.grid import (geotransform_from_yx, resample_grid,
                         utm_proj_from_latlon, ArrayGrid)
 import wrf
 import xarray as xr
@@ -51,8 +51,8 @@ class LSMGridReader(object):
         self.time_dim = 'time'
         # convert lon from [0 to 360] to [-180 to 180]
         self.lon_to_180 = False
-        # coordinates need to be projectied
-        self.coords_projected = True
+        # coordinates are projected already
+        self.coords_projected = False
 
     def to_datetime(self):
         """Converts time to datetime."""
@@ -226,6 +226,11 @@ class LSMGridReader(object):
         x_coords = self._obj[self.x_var].values
         y_coords = self._obj[self.y_var].values
 
+        if x_coords.ndim == 3:
+            x_coords = x_coords[0]
+        if y_coords.ndim == 3:
+            y_coords = y_coords[0]
+
         if x_coords.ndim < 2:
             x_coords, y_coords = np.meshgrid(x_coords, y_coords)
 
@@ -236,6 +241,10 @@ class LSMGridReader(object):
         """Returns lat,lon arrays"""
         if 'MAP_PROJ' in self._obj.attrs:
             lat, lon = wrf.latlon_coords(self._obj, as_np=True)
+            if lat.ndim == 3:
+                lat = lat[0]
+            if lon.ndim == 3:
+                lon = lon[0]
         else:
             lat, lon = self._raw_coords
 
@@ -260,13 +269,13 @@ class LSMGridReader(object):
         """Returns y, x coordinate arrays"""
         if not self.coords_projected:
             lat, lon = self.latlon
-            x_coords, y_coords = transform(Proj(init='epsg:4326'),
-                                           Proj(self.projection.ExportToProj4()),
-                                           lon,
-                                           lat)
+            x_coords, y_coords = \
+                transform(Proj(init='epsg:4326'),
+                          Proj(self.projection.ExportToProj4()),
+                          lon,
+                          lat)
             return y_coords, x_coords
-        else:
-            return self._raw_coords
+        return self._raw_coords
 
     @property
     def center(self):

@@ -16,5 +16,5 @@ dependencies:
 - pyproj
 # pynio does not work on Windows
 #- pynio
-#- sloot
+#- gazar
 - wrf-python

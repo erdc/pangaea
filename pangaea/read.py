@@ -71,8 +71,6 @@ def open_mfdataset(path_to_lsm_files,
         # remove time dimension from lat, lon coordinates
         if xds[lat_var].ndim == 3:
             xds[lat_var] = xds[lat_var].squeeze(time_dim)
-        if xds[lon_var].ndim == 3:
-            xds[lon_var] = xds[lon_var].squeeze(time_dim)
         # make sure coords are defined as coords
         if lat_var not in xds.coords \
                 or lon_var not in xds.coords \

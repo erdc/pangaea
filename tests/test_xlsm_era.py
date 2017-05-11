@@ -29,10 +29,9 @@ class ERA(object):
     lsm_lat_dim = 'latitude'
     lsm_lon_dim = 'longitude'
 
-    def __init__(self, tread, grid_name):
-        self.grid_name = grid_name
+    def __init__(self, tread, input_folder):
         self.path_to_lsm_files = \
-            path.join(tread, '{0}_data'.format(grid_name), '*.nc')
+            path.join(tread, input_folder, '*.nc')
 
     @property
     def xd(self):
@@ -46,9 +45,14 @@ class ERA(object):
                                  lon_to_180=True)
 
 
-@pytest.fixture(scope="module", params=["erai"])
+@pytest.fixture(scope="module")
 def era(request, tread):
-    return ERA(tread, request.param)
+    return ERA(tread, 'erai_data')
+
+
+@pytest.fixture(scope="module")
+def era_utm(request, tread):
+    return ERA(tread, 'erai_utm')
 
 
 def test_read_era(era):
