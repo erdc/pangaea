@@ -9,7 +9,6 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- python
 - dask
 - gdal
 - netcdf4
