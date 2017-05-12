@@ -26,11 +26,24 @@ class LSMGridReader(object):
     This is an extension for xarray specifically
     designed for land surface models.
 
-    Example::
+    Read with pangaea example::
+
+        import pangaea as pa
+
+        with pa.open_mfdataset('/path/to/ncfiles/*.nc',
+                               lat_var='lat',
+                               lon_var='lon',
+                               time_var='time',
+                               lat_dim='lat',
+                               lon_dim='lon',
+                               time_dim='time') as xds:
+            print(xds.lsm.projection)
+
+    Read with xarray example::
 
         import xarray as xr
 
-        with xr.open_dataset('/path/to/file.nc') as xds:
+        with pa.open_dataset('/path/to/file.nc') as xds:
             print(xds.lsm.projection)
     """
     def __init__(self, xarray_obj):

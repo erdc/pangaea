@@ -65,6 +65,19 @@ def open_mfdataset(path_to_lsm_files,
     Returns
     -------
     :func:`xarray.Dataset`
+
+    Read with pangaea example::
+
+        import pangaea as pa
+
+        with pa.open_mfdataset('/path/to/ncfiles/*.nc',
+                               lat_var='lat',
+                               lon_var='lon',
+                               time_var='time',
+                               lat_dim='lat',
+                               lon_dim='lon',
+                               time_dim='time') as xds:
+            print(xds.lsm.projection)
     """
     def define_coords(xds):
         """xarray loader to ensure coordinates are loaded correctly"""
