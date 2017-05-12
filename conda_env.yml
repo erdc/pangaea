@@ -10,10 +10,8 @@ channels:
 - defaults
 dependencies:
 - dask
-- gdal
+- gazar
 - netcdf4
-- pyproj
 # pynio does not work on Windows
 #- pynio
-#- gazar
 - wrf-python
