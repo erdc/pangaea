@@ -53,6 +53,7 @@ class LSMGridReader(object):
         self._geotransform = None
         self._affine = None
         self._center = None
+        self._y_inverted = None
 
         # set variable information
         self.y_var = 'lat'
@@ -86,6 +87,19 @@ class LSMGridReader(object):
                                    format="%Y-%m-%d_%H:%M:%S")
 
             self._obj[self.time_var].values = datetime_values
+
+    @property
+    def y_inverted(self):
+        """Is the y-coord inverted"""
+        if self._y_inverted is None:
+            y_coords = self._obj[self.y_var].values
+            if y_coords.ndim == 3:
+                y_coords = y_coords[0]
+            if y_coords.ndim == 2:
+                self._y_inverted = (y_coords[-1, 0] > y_coords[0, 0])
+            else:
+                self._y_inverted = (y_coords[-1] > y_coords[0])
+        return self._y_inverted
 
     @property
     def datetime(self):
@@ -170,6 +184,7 @@ class LSMGridReader(object):
             elif 'grid_type' in self._obj[self.y_var].attrs:
                 self._load_grib_projection()
             elif 'ProjectionCoordinateSystem' in self._obj.keys():
+                # national water model
                 proj4_str = self._obj['ProjectionCoordinateSystem'] \
                                 .attrs['proj4']
                 self._projection = osr.SpatialReference()
@@ -247,6 +262,11 @@ class LSMGridReader(object):
         if x_coords.ndim < 2:
             x_coords, y_coords = np.meshgrid(x_coords, y_coords)
 
+        # WRF & NWM Grids are upside down
+        if self.y_inverted:
+            x_coords = x_coords[::-1]
+            y_coords = y_coords[::-1]
+
         return y_coords, x_coords
 
     @property
@@ -258,13 +278,11 @@ class LSMGridReader(object):
                 lat = lat[0]
             if lon.ndim == 3:
                 lon = lon[0]
-        else:
-            lat, lon = self._raw_coords
-
-        if 'MAP_PROJ' in self._obj.attrs:
             # WRF Grid is upside down
             lat = lat[::-1]
             lon = lon[::-1]
+        else:
+            lat, lon = self._raw_coords
 
         if self.coords_projected:
             lon, lat = transform(Proj(self.projection.ExportToProj4()),
@@ -374,8 +392,7 @@ class LSMGridReader(object):
         var = self._obj[variable]
         slc = [slice(None)] * var.ndim
         # flip in y-direction
-        if 'MAP_PROJ' in self._obj.attrs:
-            # WRF Y DIM IS BACKWARDS
+        if self.y_inverted:
             slc[var.get_axis_num(self.y_dim)] = slice(None, None, -1)
             var = extract_slice(var, slc)
         # get data out
