@@ -82,8 +82,8 @@ def test_read_hrrr(hrrr):
         # check other attrs
         assert xd.lsm.epsg is None
         assert_almost_equal(xd.lsm.geotransform,
-                            [-1232049.027, 3007.225, 0.,
-                             31729.607, 0., -2996.084],
+                            [-1232121.72, 3007.225, 0.,
+                             151572.681, 0., -2996.084],
                             decimal=3)
         assert_almost_equal(xd.lsm.dx, 3007.2254933631671)
         assert_almost_equal(xd.lsm.dy, 2996.0838590023741)
@@ -94,25 +94,25 @@ def test_read_hrrr(hrrr):
         assert lat.shape == (41, 33)
         assert lon.shape == (41, 33)
         assert_almost_equal(lat[34:36, 27:29],
-                            [[40.9122734, 40.9162598],
-                             [40.9389305, 40.9429169]])
+                            [[40.1655922, 40.1695404],
+                             [40.138916, 40.1428604]])
         assert_almost_equal(lon[34:36, 27:29],
-                            [[-111.1815491, -111.1462708],
-                             [-111.1868362, -111.1515427]])
+                            [[-111.0352097, -111.0002975],
+                             [-111.0300446, -110.9951477]])
         y_coords, x_coords = xd.lsm.coords
         assert y_coords.shape == (41, 33)
         assert x_coords.shape == (41, 33)
         assert_almost_equal(y_coords[34:36, 27:29],
-                            [[132049.5402816, 132047.7681692],
-                             [135045.8915611, 135043.9354721]],
+                            [[48158.6054, 48157.0677],
+                             [45162.7833, 45161.013 ]],
                             decimal=4)
         assert_almost_equal(x_coords[34:36, 27:29],
-                            [[-1149410.5787115, -1146403.1090818],
-                             [-1149412.48759, -1146404.8676995]],
+                            [[-1149362.9558, -1146355.5589],
+                             [-1149361.5639, -1146354.4049]],
                             decimal=4)
         assert_almost_equal(xd.lsm.center,
                             [-111.4938354, 40.4941864])
         # test getvar method
         lrhum = xd.lsm.getvar('RH_P0_L103_GLC0')
-        rhum = xd['RH_P0_L103_GLC0']
+        rhum = xd['RH_P0_L103_GLC0'][:, ::-1]
         assert rhum.equals(lrhum)
