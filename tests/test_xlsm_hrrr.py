@@ -104,7 +104,7 @@ def test_read_hrrr(hrrr):
         assert x_coords.shape == (41, 33)
         assert_almost_equal(y_coords[34:36, 27:29],
                             [[48158.6054, 48157.0677],
-                             [45162.7833, 45161.013 ]],
+                             [45162.7833, 45161.013]],
                             decimal=4)
         assert_almost_equal(x_coords[34:36, 27:29],
                             [[-1149362.9558, -1146355.5589],
