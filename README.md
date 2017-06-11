@@ -14,3 +14,5 @@ An xarray extension for land surface models.
 [![Coverage Status](https://coveralls.io/repos/github/snowman2/pangaea/badge.svg?branch=master)](https://coveralls.io/github/snowman2/pangaea?branch=master)
 
 [![Documentation Status](https://readthedocs.org/projects/pangaea/badge/?version=latest)](http://pangaea.readthedocs.io/en/latest/?badge=latest)
+
+See documentation: http://pangaea.readthedocs.io/en/latest/
