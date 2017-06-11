@@ -5,6 +5,8 @@ An xarray extension for land surface models.
 
 [![PyPI version](https://badge.fury.io/py/pangaea.svg)](https://badge.fury.io/py/pangaea)
 
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pangaea/badges/version.svg)](https://anaconda.org/conda-forge/pangaea)
+
 [![Build Status](https://travis-ci.org/snowman2/pangaea.svg?branch=master)](https://travis-ci.org/snowman2/pangaea)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/aa0tcguo4iqw7aa6/branch/master?svg=true)](https://ci.appveyor.com/project/snowman2/pangaea/branch/master)
