@@ -66,7 +66,12 @@ def open_mfdataset(path_to_lsm_files,
     -------
     :func:`xarray.Dataset`
 
-    Read with pangaea example::
+
+    Read with pangaea example
+    -------------------------
+
+    ::
+    
 
         import pangaea as pa
 
