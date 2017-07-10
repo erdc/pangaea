@@ -91,5 +91,8 @@ ENV/
 # DS_Store
 *.DS_Store
 
+# pycharm
+.idea/
+
 # Tests
 !tests/compare/*.log
