@@ -273,7 +273,8 @@ class LSMGridReader(object):
     def latlon(self):
         """Returns lat,lon arrays
 
-            .. warning:: This will always be returned with [0,0] as Northeast and [-1,-1] as Southwest.
+            .. warning:: The grids always be returned with [0,0]
+                as Northeast and [-1,-1] as Southwest.
         """
         if 'MAP_PROJ' in self._obj.attrs:
             lat, lon = wrf.latlon_coords(self._obj, as_np=True)
@@ -302,7 +303,8 @@ class LSMGridReader(object):
     def coords(self):
         """Returns y, x coordinate arrays
 
-            .. warning:: This will always be returned with [0,0] as Northeast and [-1,-1] as Southwest.
+            .. warning:: The grids always be returned with [0,0]
+                as Northeast and [-1,-1] as Southwest.
         """
         if not self.coords_projected:
             lat, lon = self.latlon
@@ -413,7 +415,8 @@ class LSMGridReader(object):
                calc_4d_dim=None):
         """Get variable from model with subset options.
 
-            .. warning:: This will always be returned with [0,0] as Northeast and [-1,-1] as Southwest.
+            .. warning:: The grids will always be returned with [0,0]
+                as Northeast and [-1,-1] as Southwest.
 
             Parameters
             ----------
