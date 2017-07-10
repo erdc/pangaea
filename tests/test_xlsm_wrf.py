@@ -53,7 +53,7 @@ def test_read_wrf(wrf):
         # make sure coordinates correct
         assert wrf.lsm_lat_var in xd.coords
         assert wrf.lsm_lon_var in xd.coords
-        assert wrf.lsm_time_var in xd.coords
+        assert 'time' in xd.coords
         # check @property attributes
         date_array = ['2016-08-23 22:00:00', '2016-08-23 23:00:00',
                       '2016-08-24 00:00:00', '2016-08-24 01:00:00',
