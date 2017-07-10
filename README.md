@@ -1,5 +1,5 @@
 # pangaea
-An xarray extension for land surface models.
+An xarray extension for gridded land surface & weather model output.
 
 [![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-yellow.svg)](https://github.com/snowman2/pangeaea/blob/master/LICENSE)
 

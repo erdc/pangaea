@@ -15,7 +15,7 @@ requires = [
 
 setup(name='pangaea',
       version='0.0.4',
-      description='An xarray extension for land surface models.',
+      description='An xarray extension for gridded land surface & weather model output.',
       # long_description='',
       author='Alan D. Snow',
       author_email='alansnow21@gmail.com',

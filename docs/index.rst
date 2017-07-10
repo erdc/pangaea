@@ -6,7 +6,7 @@
 Welcome to pangaea's documentation!
 ===================================
 
-An xarray extension for land surface models.
+An xarray extension for gridded land surface & weather model output.
 
 GitHub: https://github.com/snowman2/pangaea
 
