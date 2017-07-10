@@ -31,6 +31,9 @@ def open_mfdataset(path_to_lsm_files,
     Wrapper to open land surface model netcdf files
     using :func:`xarray.open_mfdataset`.
 
+    .. warning:: The time dimension and variable will both be
+        renamed to 'time' to enable slicing.
+
     Parameters
     ----------
     path_to_lsm_files: :obj:`str`
@@ -122,12 +125,19 @@ def open_mfdataset(path_to_lsm_files,
                             )
     xds.lsm.y_var = lat_var
     xds.lsm.x_var = lon_var
-    xds.lsm.time_var = time_var
     xds.lsm.y_dim = lat_dim
     xds.lsm.x_dim = lon_dim
-    xds.lsm.time_dim = time_dim
     xds.lsm.lon_to_180 = lon_to_180
     xds.lsm.coords_projected = coords_projected
-    xds.lsm.to_datetime()
 
+    # make sure time dimensions are same for slicing
+    xds.rename(
+        {
+            time_dim: 'time',
+            time_var: 'time',
+        },
+        inplace=True
+    )
+
+    xds.lsm.to_datetime()
     return xds
