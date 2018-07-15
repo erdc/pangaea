@@ -111,6 +111,7 @@ def open_mfdataset(path_to_lsm_files,
                     grid_time += np.timedelta64(time_dt, time_units)
 
                 return xds.assign(time=grid_time)
+        return xds  
 
     if loader == 'hrrr':
         preprocess = extract_hrrr_date
