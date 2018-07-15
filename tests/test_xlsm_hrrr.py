@@ -8,7 +8,6 @@
 
 import os
 from os import path
-import sys
 
 from numpy.testing import assert_almost_equal
 import pandas as pd
