@@ -30,7 +30,7 @@ install:
   - activate pangaea
   - conda env update -n pangaea -f conda_env.yml
   # restart environment
-  - deactivate pangaea
+  - deactivate
   - activate pangaea
 #-------------------------------------------------------------------------------
 # Install pangaea
