@@ -12,6 +12,8 @@ dependencies:
 - dask
 - gazar
 - netcdf4
+- libgdal 2.2.*
+- gdal 2.2.*
 # pynio does not work on Windows
 #- pynio
 - wrf-python
