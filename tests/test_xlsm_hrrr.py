@@ -51,8 +51,6 @@ def hrrr(request, tread):
     return HRRR(tread)
 
 
-@pytest.mark.skipif(sys.version_info > (3, 0),
-                    reason="pynio only works on Python 2")
 @pytest.mark.skipif(os.name == 'nt',
                     reason="pynio not available on Windows")
 def test_read_hrrr(hrrr):
