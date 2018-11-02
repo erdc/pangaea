@@ -7,7 +7,7 @@
 name: pangaea
 channels:
 - conda-forge
-- defaults
+#- defaults
 dependencies:
 - dask
 - gazar
